@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/item_add" android:title="@string/action_add_account" android:orderInCategory="100"></item>
+    <item android:id="@+id/item_authorize" android:title="@string/action_authorize_account" android:orderInCategory="200"></item>
+    <item android:id="@+id/item_info" android:title="@string/action_info_account" android:orderInCategory="300"></item>
+    <item android:id="@+id/item_remove" android:title="@string/action_remove_account" android:orderInCategory="400"></item>
+    
+
+</menu>

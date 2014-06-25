@@ -3,6 +3,8 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cz.zcu.kiv.multicloudtest.MainActivity"
-    tools:ignore="MergeRootFrame" />
+    tools:context="cz.zcu.kiv.multicloudandroid.MainActivity"
+    tools:ignore="MergeRootFrame" >
+
+</FrameLayout>
 
