@@ -25,10 +25,12 @@ import cz.zcu.kiv.multicloud.MultiCloudException;
 import cz.zcu.kiv.multicloud.MultiCloudSettings;
 import cz.zcu.kiv.multicloud.json.AccountSettings;
 import cz.zcu.kiv.multicloud.json.CloudSettings;
+import cz.zcu.kiv.multicloud.oauth2.OAuth2SettingsException;
 import cz.zcu.kiv.multicloud.utils.FileAccountManager;
 import cz.zcu.kiv.multicloud.utils.FileCloudManager;
 import cz.zcu.kiv.multicloud.utils.SecureFileCredentialStore;
 import cz.zcu.kiv.multicloudandroid.display.Account;
+import cz.zcu.kiv.multicloudandroid.display.AccountAction;
 import cz.zcu.kiv.multicloudandroid.display.AccountAdapter;
 import cz.zcu.kiv.multicloudandroid.display.AccountSelectedHandler;
 import cz.zcu.kiv.multicloudandroid.fragment.AccountFragment;
@@ -45,7 +47,54 @@ import cz.zcu.kiv.multicloudandroid.fragment.ItemFragment;
  */
 public class MainActivity extends FragmentActivity implements AccountSelectedHandler {
 
+	public static final String ACCOUNT_FRAGMENT_TAG = "ACCOUNTS";
+	public static final String ITEM_FRAGMENT_TAG = "ITEMS";
+	public static final String MULTICLOUD_NAME = "MultiCLoud";
+
 	private MultiCloud cloud;
+
+	private void accountAddDialog() {
+		final View view = getLayoutInflater().inflate(R.layout.account_dialog, null);
+		AlertDialog dialog = new AlertDialog.Builder(this)
+		.setTitle(R.string.action_add_account)
+		.setView(view)
+		.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				EditText account = (EditText) view.findViewById(R.id.editText_name);
+				Spinner clouds = (Spinner) view.findViewById(R.id.spinner_clouds);
+				try {
+					cloud.createAccount(account.getText().toString(), (String) clouds.getSelectedItem());
+					updateAccountFragment();
+				} catch (MultiCloudException e) {
+					showError(R.string.action_add_account, e.getMessage());
+				}
+			}
+		})
+		.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		})
+		.create();
+		dialog.show();
+		Spinner clouds = (Spinner) dialog.findViewById(R.id.spinner_clouds);
+		if (clouds != null) {
+			ArrayList<String> cloudTypes = new ArrayList<>();
+			for (CloudSettings cs: cloud.getSettings().getCloudManager().getAllCloudSettings()) {
+				cloudTypes.add(cs.getSettingsId());
+			}
+			ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, cloudTypes);
+			clouds.setAdapter(adapter);
+		}
+	}
 
 	public MultiCloud getLibrary() {
 		return cloud;
@@ -55,18 +104,54 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onAccountSelected(int position) {
-		ItemFragment data = (ItemFragment) getSupportFragmentManager().findFragmentByTag("ITEMS");
-		if (data != null) {
+	public void onAccountSelected(int position, AccountAction action) {
+		Toast.makeText(this, "account " + action.toString(), Toast.LENGTH_SHORT).show();
 
-		} else {
-			ItemFragment itemFragment = new ItemFragment();
-			Bundle args = new Bundle();
-			itemFragment.setArguments(args);
-			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-			transaction.replace(R.id.container, itemFragment, "ITEMS");
-			transaction.addToBackStack("ITEMS");
-			transaction.commit();
+		ListFragment fragment = (ListFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
+		if (fragment != null) {
+			AccountAdapter accounts = (AccountAdapter) fragment.getListAdapter();
+			Account account = accounts.getItem(position);
+
+			switch (action) {
+			case ADD:
+				accountAddDialog();
+				break;
+			case AUTHORIZE:
+				try {
+					cloud.authorizeAccount(account.getName(), new BrowserCallback(this));
+				} catch (MultiCloudException | OAuth2SettingsException | InterruptedException e) {
+					Log.e(MULTICLOUD_NAME, e.getMessage());
+				}
+				break;
+			case INFORMATION:
+				break;
+			case LIST:
+				ItemFragment data = (ItemFragment) getSupportFragmentManager().findFragmentByTag(ITEM_FRAGMENT_TAG);
+				if (data != null) {
+
+				} else {
+					ItemFragment itemFragment = new ItemFragment();
+					Bundle args = new Bundle();
+					itemFragment.setArguments(args);
+					FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+					transaction.replace(R.id.container, itemFragment, ITEM_FRAGMENT_TAG);
+					transaction.addToBackStack(ITEM_FRAGMENT_TAG);
+					transaction.commit();
+				}
+				break;
+			case REMOVE:
+				try {
+					cloud.deleteAccount(account.getName());
+					updateAccountFragment();
+				} catch (MultiCloudException e) {
+					Log.e(MULTICLOUD_NAME, e.getMessage());
+				}
+				break;
+			default:
+				break;
+
+			}
+
 		}
 	}
 
@@ -100,7 +185,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				}
 				tmp.delete();
 			} catch (IOException e) {
-				Log.e("MultiCloud", e.getMessage());
+				Log.e(MULTICLOUD_NAME, e.getMessage());
 			}
 			settings.setCloudManager(cloudManager);
 			settings.setCredentialStore(new SecureFileCredentialStore(new File(getFilesDir(), SecureFileCredentialStore.DEFAULT_STORE_FILE)));
@@ -114,7 +199,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 			}
 			AccountFragment accounts = new AccountFragment();
 			accounts.setArguments(getIntent().getExtras());
-			getSupportFragmentManager().beginTransaction().add(R.id.container, accounts, "ACCOUNTS").commit();
+			getSupportFragmentManager().beginTransaction().add(R.id.container, accounts, ACCOUNT_FRAGMENT_TAG).commit();
 		}
 	}
 
@@ -134,46 +219,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.item_add_account:
-			final View view = getLayoutInflater().inflate(R.layout.account_dialog, null);
-			AlertDialog dialog = new AlertDialog.Builder(this)
-			.setTitle(R.string.action_add_account_options)
-			.setView(view)
-			.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-				/**
-				 * {@inheritDoc}
-				 */
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					EditText account = (EditText) view.findViewById(R.id.editText_name);
-					Spinner clouds = (Spinner) view.findViewById(R.id.spinner_clouds);
-					try {
-						cloud.createAccount(account.getText().toString(), (String) clouds.getSelectedItem());
-						updateAccountFragment();
-					} catch (MultiCloudException e) {
-						showError(R.string.action_add_account_options, e.getMessage());
-					}
-				}
-			})
-			.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
-				/**
-				 * {@inheritDoc}
-				 */
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-				}
-			})
-			.create();
-			dialog.show();
-			Spinner clouds = (Spinner) dialog.findViewById(R.id.spinner_clouds);
-			if (clouds != null) {
-				ArrayList<String> cloudTypes = new ArrayList<>();
-				for (CloudSettings cs: cloud.getSettings().getCloudManager().getAllCloudSettings()) {
-					cloudTypes.add(cs.getSettingsId());
-				}
-				ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, cloudTypes);
-				clouds.setAdapter(adapter);
-			}
+			accountAddDialog();
 			break;
 		case R.id.item_synchronize:
 			Toast.makeText(this, "synchronize", Toast.LENGTH_SHORT).show();
@@ -200,7 +246,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	 * @param message Error message.
 	 */
 	public void showError(int title, String message) {
-		Log.e("MultiCloud", message);
+		Log.e(MULTICLOUD_NAME, message);
 		AlertDialog dialog = new AlertDialog.Builder(this)
 		.setTitle(title)
 		.setMessage(message)
@@ -213,7 +259,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	 * Method for updating the list of accounts.
 	 */
 	private void updateAccountFragment() {
-		ListFragment fragment = (ListFragment) getSupportFragmentManager().findFragmentByTag("ACCOUNTS");
+		ListFragment fragment = (ListFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
 		if (fragment != null) {
 			AccountAdapter accounts = (AccountAdapter) fragment.getListAdapter();
 			accounts.clear();
@@ -227,7 +273,8 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 			if (accounts.isEmpty()) {
 				Account a = new Account();
 				a.setAuthorized(false);
-				a.setName(getString(R.string.action_add_account_options));
+				a.setCloud(null);
+				a.setName(getString(R.string.action_add_account));
 				accounts.add(a);
 			}
 		}

@@ -3,7 +3,7 @@
 
     <string name="app_name">MultiCloud</string>
     
-    <string name="action_add_account">Add</string>
+    <string name="action_add_account">Add account</string>
     <string name="action_authorize_account">Authorize</string>
     <string name="action_info_account">Information</string>
     <string name="action_remove_account">Remove</string><string name="action_synchronize">Synchronize</string><string name="action_preferences">Preferences</string>
@@ -16,7 +16,6 @@
     <string name="action_delete">Delete</string>
     <string name="action_checksum">Checksum</string>
     <string name="action_properties">Properties</string>
-    <string name="action_add_account_options">Add account</string>
     <string name="desc_account">Account name</string>
     <string name="desc_cloud">Cloud type</string>
     <string name="button_ok">Ok</string>

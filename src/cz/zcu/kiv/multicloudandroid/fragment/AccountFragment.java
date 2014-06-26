@@ -12,10 +12,11 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
-import android.widget.Toast;
 import cz.zcu.kiv.multicloudandroid.R;
 import cz.zcu.kiv.multicloudandroid.display.Account;
+import cz.zcu.kiv.multicloudandroid.display.AccountAction;
 import cz.zcu.kiv.multicloudandroid.display.AccountAdapter;
 import cz.zcu.kiv.multicloudandroid.display.AccountSelectedHandler;
 
@@ -61,22 +62,26 @@ public class AccountFragment extends ListFragment {
 	 */
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		AccountAction action = AccountAction.NONE;
 		switch (item.getItemId()) {
 		case R.id.item_add:
-			Toast.makeText(getActivity(), "add", Toast.LENGTH_SHORT).show();
+			action = AccountAction.ADD;
 			break;
 		case R.id.item_authorize:
-			Toast.makeText(getActivity(), "auth", Toast.LENGTH_SHORT).show();
+			action = AccountAction.AUTHORIZE;
 			break;
 		case R.id.item_info:
-			Toast.makeText(getActivity(), "info", Toast.LENGTH_SHORT).show();
+			action = AccountAction.INFORMATION;
 			break;
 		case R.id.item_remove:
-			Toast.makeText(getActivity(), "remove", Toast.LENGTH_SHORT).show();
+			action = AccountAction.REMOVE;
 			break;
+		default:
+			return super.onContextItemSelected(item);
 		}
-		// TODO Auto-generated method stub
-		return super.onContextItemSelected(item);
+		handler.onAccountSelected(info.position, action);
+		return true;
 	}
 
 	/**
@@ -110,7 +115,18 @@ public class AccountFragment extends ListFragment {
 	 */
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		handler.onAccountSelected(position);
+		Account account = (Account) getListAdapter().getItem(position);
+		AccountAction action = AccountAction.NONE;
+		if (account.getCloud() == null) {
+			action = AccountAction.ADD;
+		} else {
+			if (!account.isAuthorized()) {
+				action = AccountAction.AUTHORIZE;
+			} else {
+				action = AccountAction.LIST;
+			}
+		}
+		handler.onAccountSelected(position, action);
 		getListView().setItemChecked(position, true);
 	}
 
