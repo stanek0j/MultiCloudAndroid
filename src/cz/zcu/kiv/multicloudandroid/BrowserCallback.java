@@ -3,7 +3,6 @@ package cz.zcu.kiv.multicloudandroid;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
 import cz.zcu.kiv.multicloud.oauth2.AuthorizationCallback;
 import cz.zcu.kiv.multicloud.oauth2.AuthorizationRequest;
 
@@ -34,7 +33,6 @@ public class BrowserCallback implements AuthorizationCallback {
 	 */
 	@Override
 	public void onAuthorizationRequest(AuthorizationRequest request) {
-		Log.wtf("test", request.getRequestUri());
 		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(request.getRequestUri()));
 		context.startActivity(browserIntent);
 	}

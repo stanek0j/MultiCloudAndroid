@@ -6,8 +6,9 @@
     <string name="action_add_account">Add account</string>
     <string name="action_authorize_account">Authorize</string>
     <string name="action_info_account">Information</string>
-    <string name="action_remove_account">Remove</string><string name="action_synchronize">Synchronize</string><string name="action_preferences">Preferences</string>
-    
+    <string name="action_remove_account">Remove</string>
+    <string name="action_synchronize">Synchronize</string>
+    <string name="action_preferences">Preferences</string>    
     <string name="action_refresh">Refresh</string>
     <string name="action_upload">Upload</string>
     <string name="action_download">Download</string>
@@ -17,8 +18,30 @@
     <string name="action_checksum">Checksum</string>
     <string name="action_properties">Properties</string>
     <string name="desc_account">Account name</string>
+    <string name="desc_add_account">Click to add account.</string>
     <string name="desc_cloud">Cloud type</string>
-    <string name="button_ok">Ok</string>
+    <string name="desc_free_used_space">Free / Used:</string>
+    <string name="desc_icon">Icon</string>
+    <string name="desc_listed">listed</string>
+    <string name="desc_not_authorized">Not authorized.</string>
+    <string name="desc_quota_free">Free space:</string>
+    <string name="desc_quota_total">Total space:</string>
+    <string name="desc_quota_used">Used space:</string>
+    <string name="desc_total_space">Total space:</string>
+    <string name="desc_user_id">User ID:</string>
+    <string name="desc_user_name">User name:</string>
+    <string name="wait_authorize">Waiting for authorization&#8230;</string>
+    <string name="wait_delete">Deleting&#8230;</string>
+    <string name="wait_info">Getting account information&#8230;</string>
+    <string name="wait_list">Loading folder content&#8230;</string>
+    <string name="wait_load">Loading&#8230;</string>
+    <string name="wait_new_folder">Creating new folder&#8230;</string>
+    <string name="wait_refresh">Refreshing&#8230;</string>
+    <string name="wait_rename">Renaming&#8230;</string>
+    <string name="button_ok">OK</string>
     <string name="button_cancel">Cancel</string>
+    <string name="button_abort">Abort</string>
+    <string name="err_authorized">Account already authorized.</string>
+    <string name="err_not_authorized">Account not authorized.</string>
 
 </resources>

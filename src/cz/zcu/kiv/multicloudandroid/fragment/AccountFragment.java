@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
+import cz.zcu.kiv.multicloudandroid.MainActivity;
 import cz.zcu.kiv.multicloudandroid.R;
 import cz.zcu.kiv.multicloudandroid.display.Account;
 import cz.zcu.kiv.multicloudandroid.display.AccountAction;
@@ -32,7 +33,70 @@ import cz.zcu.kiv.multicloudandroid.display.AccountSelectedHandler;
 public class AccountFragment extends ListFragment {
 
 	/** Handler for the onSelected event. */
-	AccountSelectedHandler handler;
+	private AccountSelectedHandler handler;
+
+	/**
+	 * Adds account to the list.
+	 * @param account Account to be added.
+	 */
+	public void accountAdd(Account account) {
+		AccountAdapter accounts = (AccountAdapter) getListAdapter();
+		if (accounts.getCount() == 1) {
+			Account first = accounts.getItem(0);
+			if (first.getCloud() == null) {
+				accounts.remove(first);
+			}
+		}
+		accounts.add(account);
+		accounts.notifyDataSetChanged();
+	}
+
+	/**
+	 * Removes account from the list.
+	 * @param account Account to be removed.
+	 */
+	public void accountRemove(Account account) {
+		AccountAdapter accounts = (AccountAdapter) getListAdapter();
+		accounts.remove(account);
+		if (accounts.isEmpty()) {
+			Account a = new Account();
+			a.setAuthorized(false);
+			a.setCloud(null);
+			a.setName(getString(R.string.action_add_account));
+			accounts.add(a);
+		}
+		accounts.notifyDataSetChanged();
+	}
+
+	/**
+	 * Renames account in the list.
+	 * @param account Account to be renamed.
+	 * @param name New name for the account.
+	 */
+	public void accountRename(Account account, String name) {
+		AccountAdapter accounts = (AccountAdapter) getListAdapter();
+		account.setName(name);
+		accounts.notifyDataSetChanged();
+	}
+
+	/**
+	 * Updated account in the list.
+	 * @param account Account to be updated.
+	 */
+	public void accountUpdate(Account account) {
+		AccountAdapter accounts = (AccountAdapter) getListAdapter();
+		for (int i = 0; i < accounts.getCount(); i++) {
+			Account a = accounts.getItem(i);
+			if (a.getName().equals(account.getName())) {
+				a.setAuthorized(account.isAuthorized());
+				a.setTotalSpace(account.getTotalSpace());
+				a.setFreeSpace(account.getFreeSpace());
+				a.setUsedSpace(account.getUsedSpace());
+				break;
+			}
+		}
+		accounts.notifyDataSetChanged();
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -53,7 +117,7 @@ public class AccountFragment extends ListFragment {
 			handler = (AccountSelectedHandler) activity;
 		} catch (ClassCastException e) {
 			/* handling of account selection not supported */
-			Log.e("MultiCloud", e.getMessage());
+			Log.e(MainActivity.MULTICLOUD_NAME, e.getMessage());
 		}
 	}
 
@@ -65,14 +129,14 @@ public class AccountFragment extends ListFragment {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		AccountAction action = AccountAction.NONE;
 		switch (item.getItemId()) {
-		case R.id.item_add:
-			action = AccountAction.ADD;
-			break;
 		case R.id.item_authorize:
 			action = AccountAction.AUTHORIZE;
 			break;
 		case R.id.item_info:
 			action = AccountAction.INFORMATION;
+			break;
+		case R.id.item_rename:
+			action = AccountAction.RENAME;
 			break;
 		case R.id.item_remove:
 			action = AccountAction.REMOVE;

@@ -16,6 +16,7 @@ public enum AccountAction {
 	AUTHORIZE,
 	INFORMATION,
 	LIST,
+	RENAME,
 	REMOVE
 
 }

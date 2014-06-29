@@ -12,10 +12,29 @@ import cz.zcu.kiv.multicloud.utils.Utils;
 import cz.zcu.kiv.multicloud.utils.Utils.UnitsFormat;
 import cz.zcu.kiv.multicloudandroid.R;
 
+/**
+ * cz.zcu.kiv.multicloudandroid.display/AccountAdapter.java			<br /><br />
+ *
+ * Adapter for holding and displaying accounts.
+ *
+ * @author Jaromír Staněk
+ * @version 1.0
+ *
+ */
 public class AccountAdapter extends ArrayAdapter<Account> {
 
+	/** Context. */
+	private final Context context;
+
+	/**
+	 * Ctor with necessary parameters.
+	 * @param context Context.
+	 * @param resource Resource ID.
+	 * @param objects List of accounts.
+	 */
 	public AccountAdapter(Context context, int resource, List<Account> objects) {
 		super(context, resource, objects);
+		this.context = context;
 	}
 
 	/**
@@ -32,19 +51,23 @@ public class AccountAdapter extends ArrayAdapter<Account> {
 		TextView quota = (TextView) view.findViewById(R.id.textView_quota);
 		name.setText(value.getName());
 		if (value.isListed()) {
-			cloud.setText(value.getCloud() + " (listed)");
+			cloud.setText(value.getCloud() + " (" + context.getText(R.string.desc_listed) + ")");
 		} else {
 			cloud.setText(value.getCloud());
 		}
 		StringBuilder sb = new StringBuilder();
 		if (value.isAuthorized()) {
-			total.setText("Total space: " + Utils.formatSize(value.getTotalSpace(), UnitsFormat.BINARY));
-			sb.append("Free / Used: ");
+			total.setText(context.getText(R.string.desc_total_space) + " " + Utils.formatSize(value.getTotalSpace(), UnitsFormat.BINARY));
+			sb.append(context.getText(R.string.desc_free_used_space) + " ");
 			sb.append(Utils.formatSize(value.getFreeSpace(), UnitsFormat.BINARY));
 			sb.append(" / ");
 			sb.append(Utils.formatSize(value.getUsedSpace(), UnitsFormat.BINARY));
 		} else {
-			total.setText("Not authorized.");
+			if (value.getCloud() != null) {
+				total.setText(R.string.desc_not_authorized);
+			} else {
+				total.setText(R.string.desc_add_account);
+			}
 		}
 		quota.setText(sb.toString());
 		return view;

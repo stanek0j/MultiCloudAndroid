@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/item_refresh" android:title="@string/action_refresh" android:orderInCategory="100"></item>
-    <item android:id="@+id/item_upload" android:title="@string/action_upload" android:orderInCategory="200"></item>
-    <item android:id="@+id/item_download" android:title="@string/action_download" android:orderInCategory="300"></item>
-    <item android:id="@+id/item_new_folder" android:title="@string/action_new_folder" android:orderInCategory="400"></item>
-    <item android:id="@+id/item_rename" android:title="@string/action_rename" android:orderInCategory="500"></item>
-    <item android:id="@+id/item_delete" android:title="@string/action_delete" android:orderInCategory="600"></item>
-    <item android:id="@+id/item_checksum" android:title="@string/action_checksum" android:orderInCategory="700"></item>
-    <item android:id="@+id/item_properties" android:title="@string/action_properties" android:orderInCategory="800"></item>
-    
-
+    <item android:id="@+id/item_download" android:title="@string/action_download" android:orderInCategory="100"></item>
+    <item android:id="@+id/item_rename" android:title="@string/action_rename" android:orderInCategory="200"></item>
+    <item android:id="@+id/item_delete" android:title="@string/action_delete" android:orderInCategory="300"></item>
+    <item android:id="@+id/item_checksum" android:title="@string/action_checksum" android:orderInCategory="400"></item>
+    <item android:id="@+id/item_properties" android:title="@string/action_properties" android:orderInCategory="500"></item>
 </menu>
