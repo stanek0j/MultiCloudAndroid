@@ -1,25 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/account_dialog"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-
+ 
     <EditText
-        android:id="@+id/editText_user_name"
+        android:id="@+id/editText_file_folder_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="@string/desc_account"
+        android:hint="@string/desc_enter_file"
         android:inputType="text" >
 
         <requestFocus />
     </EditText>
-
-    <Spinner
-        android:id="@+id/spinner_clouds"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/desc_cloud" />
 
 </LinearLayout>

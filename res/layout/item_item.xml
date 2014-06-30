@@ -14,7 +14,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
         android:contentDescription="@string/desc_icon"
-        android:src="@drawable/bad_file_small" />
+        android:src="@drawable/ic_bad_file" />
 
     <TextView
         android:id="@+id/textView_filename"

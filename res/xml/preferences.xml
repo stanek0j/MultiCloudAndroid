@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/prefs_display" android:key="prefs_display">
+        <CheckBoxPreference android:defaultValue="false" android:title="@string/prefs_show_hidden" android:key="prefs_show_hidden"/>
+        <CheckBoxPreference android:defaultValue="false" android:title="@string/prefs_show_shared" android:key="prefs_show_shared"/>
+        <CheckBoxPreference android:defaultValue="true" android:title="@string/prefs_hide_cache" android:key="prefs_hide_cache"/>
+        <CheckBoxPreference android:defaultValue="true" android:title="@string/prefs_show_err" android:key="prefs_show_err"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/prefs_download" android:key="prefs_download">
+        <cz.zcu.kiv.multicloudandroid.display.NumberPreference android:key="prefs_threads" android:title="@string/prefs_threads"/>
+    </PreferenceCategory><PreferenceCategory android:title="@string/prefs_synchronize" android:key="prefs_synchronize">
+        <Preference android:title="@string/prefs_synch_folder" android:key="prefs_synch_folder"/>
+        <Preference android:title="@string/prefs_synch_select" android:key="prefs_synch_select"/>
+    </PreferenceCategory>
+    
+    
+
+</PreferenceScreen>

@@ -115,6 +115,7 @@ public class AccountFragment extends ListFragment {
 		super.onAttach(activity);
 		try {
 			handler = (AccountSelectedHandler) activity;
+			activity.invalidateOptionsMenu();
 		} catch (ClassCastException e) {
 			/* handling of account selection not supported */
 			Log.e(MainActivity.MULTICLOUD_NAME, e.getMessage());
@@ -198,13 +199,9 @@ public class AccountFragment extends ListFragment {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onStart() {
-		super.onStart();
-		if (getFragmentManager().findFragmentById(R.id.data_fragment) != null) {
-			getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		} else {
-			getListView().setChoiceMode(ListView.CHOICE_MODE_NONE);
-		}
+	public void onResume() {
+		super.onResume();
+		getActivity().invalidateOptionsMenu();
 	}
 
 }

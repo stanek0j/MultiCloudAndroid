@@ -53,10 +53,10 @@ public class ItemAdapter extends ArrayAdapter<FileInfo> {
 		TextView modified = (TextView) view.findViewById(R.id.textView_modified);
 		name.setText(value.getName());
 		if (value.getFileType() == FileType.FILE) {
-			icon.setImageResource(R.drawable.file_small);
+			icon.setImageResource(R.drawable.ic_file);
 			size.setText(Utils.formatSize(value.getSize(), UnitsFormat.BINARY));
 		} else {
-			icon.setImageResource(R.drawable.folder_small);
+			icon.setImageResource(R.drawable.ic_folder);
 		}
 		SimpleDateFormat dt = new SimpleDateFormat(MainActivity.DATE_FORMAT, Locale.getDefault());
 		if (value.getModified() != null) {

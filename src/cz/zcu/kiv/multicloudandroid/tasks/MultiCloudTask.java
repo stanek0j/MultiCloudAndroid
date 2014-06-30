@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import cz.zcu.kiv.multicloud.MultiCloud;
 import cz.zcu.kiv.multicloudandroid.MainActivity;
+import cz.zcu.kiv.multicloudandroid.R;
 import cz.zcu.kiv.multicloudandroid.display.Account;
 import cz.zcu.kiv.multicloudandroid.display.TaskDialog;
 
@@ -22,18 +23,19 @@ public abstract class MultiCloudTask extends AsyncTask<Void, Void, Void> {
 	protected final MainActivity activity;
 	/** MultiCloud library. */
 	protected final MultiCloud cloud;
-	/** Account to be authorized. */
+	/** Account. */
 	protected final Account account;
 	/** Progress dialog showed. */
 	private ProgressDialog dialog;
 	/** Identifier of the text shown in progress dialog. */
 	private final int dialogText;
+	/** Error message to be displayed. */
+	protected String error;
 
 	/**
 	 * Ctor with necessary parameters.
 	 * @param activity Activity.
-	 * @param cloud MultiCloud library.
-	 * @param account Account to be authorized.
+	 * @param dialogText Text for the displayed dialog.
 	 */
 	public MultiCloudTask(MainActivity activity, MultiCloud cloud, Account account, int dialogText) {
 		this.activity = activity;
@@ -65,6 +67,9 @@ public abstract class MultiCloudTask extends AsyncTask<Void, Void, Void> {
 			dialog.dismiss();
 		}
 		onPostExecuteExtended();
+		if (error != null) {
+			activity.showError(R.string.err_generic, error);
+		}
 	}
 
 	/**

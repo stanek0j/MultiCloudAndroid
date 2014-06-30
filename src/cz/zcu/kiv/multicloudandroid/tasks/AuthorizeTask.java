@@ -1,6 +1,5 @@
 package cz.zcu.kiv.multicloudandroid.tasks;
 
-import android.util.Log;
 import cz.zcu.kiv.multicloud.MultiCloud;
 import cz.zcu.kiv.multicloud.MultiCloudException;
 import cz.zcu.kiv.multicloud.json.AccountQuota;
@@ -44,7 +43,7 @@ public class AuthorizeTask extends MultiCloudTask {
 			account.setFreeSpace(quota.getFreeBytes());
 			account.setUsedSpace(quota.getUsedBytes());
 		} catch (MultiCloudException | OAuth2SettingsException | InterruptedException e) {
-			Log.e(MainActivity.MULTICLOUD_NAME, e.getMessage());
+			error = e.getMessage();
 		}
 	}
 

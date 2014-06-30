@@ -16,7 +16,9 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import cz.zcu.kiv.multicloud.filesystem.FileType;
 import cz.zcu.kiv.multicloud.json.FileInfo;
+import cz.zcu.kiv.multicloudandroid.ChecksumProvider;
 import cz.zcu.kiv.multicloudandroid.MainActivity;
+import cz.zcu.kiv.multicloudandroid.PrefsHelper;
 import cz.zcu.kiv.multicloudandroid.R;
 import cz.zcu.kiv.multicloudandroid.display.ItemAction;
 import cz.zcu.kiv.multicloudandroid.display.ItemAdapter;
@@ -41,6 +43,7 @@ public class ItemFragment extends ListFragment {
 	 * @param folder Folder content.
 	 */
 	public void displayFolderContent(FileInfo folder) {
+		PrefsHelper prefs = ((MainActivity) getActivity()).getPrefsHelper();
 		ItemAdapter adapter = (ItemAdapter) getListAdapter();
 		adapter.clear();
 		if (folder != null) {
@@ -52,9 +55,9 @@ public class ItemFragment extends ListFragment {
 			}
 			for (FileInfo f: folder.getContent()) {
 				if (f.getFileType() == FileType.FILE) {
-					//if (parent.getPreferences().isHideMetadata() && f.getName().equals(ChecksumProvider.CHECKSUM_FILE)) {
-					//	continue;
-					//}
+					if (prefs.isHideCache() && f.getName().equals(ChecksumProvider.CHECKSUM_FILE)) {
+						continue;
+					}
 					adapter.add(f);
 				}
 			}
@@ -78,6 +81,7 @@ public class ItemFragment extends ListFragment {
 		super.onAttach(activity);
 		try {
 			handler = (ItemSelectedHandler) activity;
+			activity.invalidateOptionsMenu();
 		} catch (ClassCastException e) {
 			/* handling of account selection not supported */
 			Log.e(MainActivity.MULTICLOUD_NAME, e.getMessage());
