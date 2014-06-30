@@ -103,9 +103,6 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				if (addToStack) {
 					currentPath.add(folder);
 				}
-				for (FileInfo f: currentPath) {
-					Log.wtf("test", "path: " + f.getName());
-				}
 				getActionBar().setDisplayHomeAsUpEnabled(currentPath.size() > 1);
 				if (folder.getName() == null) {
 					getActionBar().setTitle("[" + currentAccount.getName() + " - root]");
@@ -193,13 +190,15 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 		ListFragment fragment = (ListFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
 		if (fragment != null) {
 			AccountAdapter accounts = (AccountAdapter) fragment.getListAdapter();
-			Account account = accounts.getItem(position);
+			Account prevAccount = currentAccount;
+			currentAccount = accounts.getItem(position);
+			boolean persistAccount = false;
 			switch (action) {
 			case ADD:
 				dialogs.dialogAccountName(null);
 				break;
 			case AUTHORIZE:
-				if (!account.isAuthorized()) {
+				if (!currentAccount.isAuthorized()) {
 					AuthorizeTask authTask = new AuthorizeTask(this);
 					authTask.execute();
 				} else {
@@ -207,7 +206,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				}
 				break;
 			case INFORMATION:
-				if (account.isAuthorized()) {
+				if (currentAccount.isAuthorized()) {
 					InformationTask infoTask = new InformationTask(this);
 					infoTask.execute();
 				} else {
@@ -216,17 +215,17 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				break;
 			case LIST:
 				final ActionBar actionBar = getActionBar();
-				if (!account.equals(currentAccount)) {
-					currentAccount = account;
+				if (!currentAccount.equals(prevAccount)) {
 					currentFolder = null;
 					currentPath.clear();
 					actionBar.setDisplayHomeAsUpEnabled(false);
-					actionBar.setTitle("[" + account.getName() + " - root]");
+					actionBar.setTitle("[" + currentAccount.getName() + " - root]");
 					addToStack = true;
 				} else {
 					actionBar.setDisplayHomeAsUpEnabled(currentPath.size() > 1);
 					actionBar.setTitle(currentFolder.getName());
 				}
+				persistAccount = true;
 				ItemFragment itemFragment = new ItemFragment();
 				FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 				transaction.replace(R.id.container, itemFragment, ITEM_FRAGMENT_TAG);
@@ -237,17 +236,20 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				break;
 			case REMOVE:
 				try {
-					cloud.deleteAccount(account.getName());
-					actionRemoveAccount(account);
+					cloud.deleteAccount(currentAccount.getName());
+					actionRemoveAccount(currentAccount);
 				} catch (MultiCloudException e) {
 					Log.e(MULTICLOUD_NAME, e.getMessage());
 				}
 				break;
 			case RENAME:
-				dialogs.dialogAccountName(account);
+				dialogs.dialogAccountName(currentAccount);
 				break;
 			default:
 				break;
+			}
+			if (!persistAccount) {
+				currentAccount = prevAccount;
 			}
 		}
 	}
@@ -325,13 +327,11 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				itemAddAccount.setVisible(true);
 				itemNewFolder.setVisible(false);
 				itemUpload.setVisible(false);
-				Log.wtf("test", "showing accounts");
 			}
 			if (items != null && items.isVisible()) {
 				itemAddAccount.setVisible(false);
 				itemNewFolder.setVisible(true);
 				itemUpload.setVisible(true);
-				Log.wtf("test", "showing items");
 			}
 		}
 		return super.onCreateOptionsMenu(menu);

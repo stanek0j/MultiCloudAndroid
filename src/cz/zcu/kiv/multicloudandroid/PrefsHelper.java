@@ -15,7 +15,7 @@ import android.preference.PreferenceManager;
 public class PrefsHelper {
 
 	/** Key for getting preference for showing hidden files. */
-	public static final String PREFS_SHOW_HIDDEN = "prefs_show_hidden";
+	public static final String PREFS_SHOW_DELETED = "prefs_show_deleted";
 	/** Key for getting preference for showing shared files. */
 	public static final String PREFS_SHOW_SHARED = "prefs_show_shared";
 	/** Key for getting preference for hiding checksum cache file. */
@@ -64,19 +64,19 @@ public class PrefsHelper {
 	}
 
 	/**
+	 * Returns if deleted files should be displayed.
+	 * @return If deleted files should be displayed.
+	 */
+	public boolean isShowDeleted() {
+		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREFS_SHOW_DELETED, false);
+	}
+
+	/**
 	 * Returns if error dialogs should be displayed.
 	 * @return If error dialogs should be displayed.
 	 */
 	public boolean isShowErr() {
 		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREFS_SHOW_ERR, true);
-	}
-
-	/**
-	 * Returns if hidden files should be displayed.
-	 * @return If hidden files should be displayed.
-	 */
-	public boolean isShowHidden() {
-		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREFS_SHOW_HIDDEN, false);
 	}
 
 	/**

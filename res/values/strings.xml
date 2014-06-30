@@ -59,7 +59,7 @@
     <string name="err_authorized">Account already authorized.</string>
     <string name="err_not_authorized">Account not authorized.</string>
     <string name="prefs_display">Display options</string>
-    <string name="prefs_show_hidden">Show hidden files</string>
+    <string name="prefs_show_deleted">Show deleted files</string>
     <string name="prefs_show_shared">Show shared files</string>
     <string name="prefs_hide_cache">Hide checksum cache</string>
     <string name="prefs_show_err">Show error dialogs</string>

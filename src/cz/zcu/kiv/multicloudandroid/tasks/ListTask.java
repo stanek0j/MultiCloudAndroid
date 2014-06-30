@@ -36,7 +36,7 @@ public class ListTask extends MultiCloudTask {
 	protected void doInBackgroundExtended() {
 		try {
 			PrefsHelper prefs = activity.getPrefsHelper();
-			folder = cloud.listFolder(account.getName(), activity.getCurrentFolder(), prefs.isShowHidden(), prefs.isShowShared());
+			folder = cloud.listFolder(account.getName(), activity.getCurrentFolder(), prefs.isShowDeleted(), prefs.isShowShared());
 		} catch (MultiCloudException | OAuth2SettingsException | InterruptedException e) {
 			error = e.getMessage();
 		}
