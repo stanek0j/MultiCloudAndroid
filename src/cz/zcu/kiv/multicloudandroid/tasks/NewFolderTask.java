@@ -29,7 +29,7 @@ public class NewFolderTask extends MultiCloudTask {
 	 * @param name New folder name.
 	 */
 	public NewFolderTask(MainActivity activity, String name) {
-		super(activity, activity.getLibrary(), activity.getCurrentAccount(), R.string.wait_new_folder);
+		super(activity, R.string.wait_new_folder);
 		this.name = name;
 	}
 
@@ -53,6 +53,8 @@ public class NewFolderTask extends MultiCloudTask {
 	@Override
 	protected void onPostExecuteExtended() {
 		if (folder != null) {
+			cache.provideChecksum(account.getName(), folder);
+			cache.provideChecksum(account.getName(), folder.getContent());
 			activity.actionListItem(folder);
 		}
 	}

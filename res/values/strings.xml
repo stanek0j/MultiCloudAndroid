@@ -52,6 +52,9 @@
     <string name="button_abort">Abort</string>
     <string name="button_yes">Yes</string>
     <string name="button_no">No</string>
+    <string name="button_parent">Parent</string>
+    <string name="button_clear">Clear</string>
+    <string name="button_folder">New folder</string>
     <string name="err_generic">Error</string>
     <string name="err_authorized">Account already authorized.</string>
     <string name="err_not_authorized">Account not authorized.</string>
@@ -62,9 +65,11 @@
     <string name="prefs_show_err">Show error dialogs</string>
     <string name="prefs_synchronize">Synchronization</string>
     <string name="prefs_synch_folder">Synchronization folder</string>
+    <string name="prefs_synch_folder_desc">No folder selected.</string>
     <string name="prefs_synch_select">Selective synchronization</string>
     <string name="prefs_download">Download options</string>
     <string name="prefs_threads">Threads</string>
+    <string name="prefs_threads_desc">Number of download threads:</string>
     
 
 </resources>

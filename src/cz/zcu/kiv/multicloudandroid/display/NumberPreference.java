@@ -1,6 +1,7 @@
 package cz.zcu.kiv.multicloudandroid.display;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.View;
@@ -18,11 +19,15 @@ import cz.zcu.kiv.multicloudandroid.R;
  */
 public class NumberPreference extends DialogPreference {
 
-	/** Minimum value. */
-	public static final int MIN_VAL = 1;
-	/** Maximum value. */
-	public static final int MAX_VAL = 10;
+	/** Default minimum value. */
+	public static final int DEF_MIN = 1;
+	/** Default maximum value. */
+	public static final int DEF_MAX = 10;
 
+	/** Minimum value. */
+	private final int min;
+	/** Maximum value. */
+	private final int max;
 	/** Default value. */
 	private int def;
 	/** Number picker. */
@@ -35,7 +40,11 @@ public class NumberPreference extends DialogPreference {
 	 */
 	public NumberPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		setDialogLayoutResource(R.layout.number_pref);
+		setDialogLayoutResource(R.layout.number_picker_dialog);
+		TypedArray numPrefs = context.obtainStyledAttributes(attrs, R.styleable.NumberPreference, 0, 0);
+		min = numPrefs.getInt(R.styleable.NumberPreference_min, DEF_MIN);
+		max = numPrefs.getInt(R.styleable.NumberPreference_max, DEF_MAX);
+		numPrefs.recycle();
 	}
 
 	/**
@@ -45,9 +54,9 @@ public class NumberPreference extends DialogPreference {
 	protected void onBindDialogView(View view) {
 		super.onBindDialogView(view);
 		numPicker = (NumberPicker) view.findViewById(R.id.numberPicker_num);
-		numPicker.setMinValue(MIN_VAL);
-		numPicker.setMaxValue(MAX_VAL);
-		def = getSharedPreferences().getInt(getKey(), MIN_VAL);
+		numPicker.setMinValue(min);
+		numPicker.setMaxValue(max);
+		def = getSharedPreferences().getInt(getKey(), min);
 		numPicker.setValue(def);
 		numPicker.setWrapSelectorWheel(false);
 	}

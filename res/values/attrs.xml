@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="NumberPreference">
+        <attr name="min" format="integer"/>
+        <attr name="max" format="integer"/>
+    </declare-styleable>
+    <declare-styleable name="FilePreference">
+        <attr name="folders_only" format="boolean"/>
+    </declare-styleable>
+</resources>

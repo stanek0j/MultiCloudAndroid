@@ -1,13 +1,11 @@
 package cz.zcu.kiv.multicloudandroid.tasks;
 
-import cz.zcu.kiv.multicloud.MultiCloud;
 import cz.zcu.kiv.multicloud.MultiCloudException;
 import cz.zcu.kiv.multicloud.json.FileInfo;
 import cz.zcu.kiv.multicloud.oauth2.OAuth2SettingsException;
 import cz.zcu.kiv.multicloudandroid.MainActivity;
 import cz.zcu.kiv.multicloudandroid.PrefsHelper;
 import cz.zcu.kiv.multicloudandroid.R;
-import cz.zcu.kiv.multicloudandroid.display.Account;
 
 /**
  * cz.zcu.kiv.multicloudandroid.tasks/ListTask.java			<br /><br />
@@ -26,11 +24,9 @@ public class ListTask extends MultiCloudTask {
 	/**
 	 * Ctor with necessary parameters.
 	 * @param activity Activity.
-	 * @param cloud MultiCloud library.
-	 * @param account Account to be authorized.
 	 */
-	public ListTask(MainActivity activity, MultiCloud cloud, Account account) {
-		super(activity, cloud, account, R.string.wait_list);
+	public ListTask(MainActivity activity) {
+		super(activity, R.string.wait_list);
 	}
 
 	/**
@@ -52,6 +48,8 @@ public class ListTask extends MultiCloudTask {
 	@Override
 	protected void onPostExecuteExtended() {
 		if (folder != null) {
+			cache.provideChecksum(account.getName(), folder);
+			cache.provideChecksum(account.getName(), folder.getContent());
 			activity.actionListItem(folder);
 		}
 	}

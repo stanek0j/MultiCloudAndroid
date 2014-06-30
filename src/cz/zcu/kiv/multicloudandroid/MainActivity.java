@@ -41,6 +41,7 @@ import cz.zcu.kiv.multicloudandroid.fragment.ItemFragment;
 import cz.zcu.kiv.multicloudandroid.tasks.AuthorizeTask;
 import cz.zcu.kiv.multicloudandroid.tasks.InformationTask;
 import cz.zcu.kiv.multicloudandroid.tasks.ListTask;
+import cz.zcu.kiv.multicloudandroid.tasks.RefreshTask;
 
 /**
  * cz.zcu.kiv.multicloudandroid/MainActivity.java			<br /><br />
@@ -138,6 +139,10 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 		}
 	}
 
+	public synchronized ChecksumProvider getCache() {
+		return cache;
+	}
+
 	public synchronized Account getCurrentAccount() {
 		return currentAccount;
 	}
@@ -195,7 +200,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				break;
 			case AUTHORIZE:
 				if (!account.isAuthorized()) {
-					AuthorizeTask authTask = new AuthorizeTask(this, cloud, account);
+					AuthorizeTask authTask = new AuthorizeTask(this);
 					authTask.execute();
 				} else {
 					showToast(R.string.err_authorized);
@@ -203,7 +208,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				break;
 			case INFORMATION:
 				if (account.isAuthorized()) {
-					InformationTask infoTask = new InformationTask(this, cloud, account);
+					InformationTask infoTask = new InformationTask(this);
 					infoTask.execute();
 				} else {
 					showToast(R.string.err_not_authorized);
@@ -227,7 +232,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				transaction.replace(R.id.container, itemFragment, ITEM_FRAGMENT_TAG);
 				transaction.addToBackStack(ITEM_FRAGMENT_TAG);
 				transaction.commit();
-				ListTask listTask = new ListTask(this, cloud, currentAccount);
+				ListTask listTask = new ListTask(this);
 				listTask.execute();
 				break;
 			case REMOVE:
@@ -345,7 +350,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 			case LIST:
 				currentFolder = item;
 				addToStack = true;
-				ListTask listTask = new ListTask(this, cloud, currentAccount);
+				ListTask listTask = new ListTask(this);
 				listTask.execute();
 				break;
 			case DOWNLOAD:
@@ -383,7 +388,18 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 			Toast.makeText(this, "upload", Toast.LENGTH_SHORT).show();
 			break;
 		case R.id.item_refresh:
-			Toast.makeText(this, "refresh", Toast.LENGTH_SHORT).show();
+			if (findViewById(R.id.container) != null) {
+				Fragment accounts = getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
+				Fragment items = getSupportFragmentManager().findFragmentByTag(ITEM_FRAGMENT_TAG);
+				if (accounts != null && accounts.isVisible()) {
+					RefreshTask refreshTask = new RefreshTask(this);
+					refreshTask.execute();
+				}
+				if (items != null && items.isVisible()) {
+					ListTask listTask = new ListTask(this);
+					listTask.execute();
+				}
+			}
 			break;
 		case R.id.item_synchronize:
 			Toast.makeText(this, "synchronize", Toast.LENGTH_SHORT).show();
@@ -397,7 +413,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 			if (itemFragment != null) {
 				currentPath.removeLast();
 				currentFolder = currentPath.peekLast();
-				ListTask listTask = new ListTask(this, cloud, currentAccount);
+				ListTask listTask = new ListTask(this);
 				listTask.execute();
 			}
 			break;

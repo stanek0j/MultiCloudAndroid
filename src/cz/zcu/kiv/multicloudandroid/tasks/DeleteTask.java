@@ -29,7 +29,7 @@ public class DeleteTask extends MultiCloudTask {
 	 * @param file File or folder to be deleted.
 	 */
 	public DeleteTask(MainActivity activity, FileInfo file) {
-		super(activity, activity.getLibrary(), activity.getCurrentAccount(), R.string.wait_delete);
+		super(activity, R.string.wait_delete);
 		this.file = file;
 	}
 
@@ -53,6 +53,8 @@ public class DeleteTask extends MultiCloudTask {
 	@Override
 	protected void onPostExecuteExtended() {
 		if (folder != null) {
+			cache.provideChecksum(account.getName(), folder);
+			cache.provideChecksum(account.getName(), folder.getContent());
 			activity.actionListItem(folder);
 		}
 	}

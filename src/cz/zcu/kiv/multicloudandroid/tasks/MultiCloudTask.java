@@ -3,6 +3,7 @@ package cz.zcu.kiv.multicloudandroid.tasks;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import cz.zcu.kiv.multicloud.MultiCloud;
+import cz.zcu.kiv.multicloudandroid.ChecksumProvider;
 import cz.zcu.kiv.multicloudandroid.MainActivity;
 import cz.zcu.kiv.multicloudandroid.R;
 import cz.zcu.kiv.multicloudandroid.display.Account;
@@ -25,6 +26,8 @@ public abstract class MultiCloudTask extends AsyncTask<Void, Void, Void> {
 	protected final MultiCloud cloud;
 	/** Account. */
 	protected final Account account;
+	/** Checksum provider. */
+	protected final ChecksumProvider cache;
 	/** Progress dialog showed. */
 	private ProgressDialog dialog;
 	/** Identifier of the text shown in progress dialog. */
@@ -37,10 +40,11 @@ public abstract class MultiCloudTask extends AsyncTask<Void, Void, Void> {
 	 * @param activity Activity.
 	 * @param dialogText Text for the displayed dialog.
 	 */
-	public MultiCloudTask(MainActivity activity, MultiCloud cloud, Account account, int dialogText) {
+	public MultiCloudTask(MainActivity activity, int dialogText) {
 		this.activity = activity;
-		this.cloud = cloud;
-		this.account = account;
+		this.cloud = activity.getLibrary();
+		this.account = activity.getCurrentAccount();
+		this.cache = activity.getCache();
 		this.dialogText = dialogText;
 	}
 

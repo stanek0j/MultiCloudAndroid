@@ -32,7 +32,7 @@ public class RenameTask extends MultiCloudTask {
 	 * @param name New file or folder name.
 	 */
 	public RenameTask(MainActivity activity, FileInfo file, String name) {
-		super(activity, activity.getLibrary(), activity.getCurrentAccount(), R.string.wait_rename);
+		super(activity, R.string.wait_rename);
 		this.file = file;
 		this.name = name;
 	}
@@ -57,6 +57,8 @@ public class RenameTask extends MultiCloudTask {
 	@Override
 	protected void onPostExecuteExtended() {
 		if (folder != null) {
+			cache.provideChecksum(account.getName(), folder);
+			cache.provideChecksum(account.getName(), folder.getContent());
 			activity.actionListItem(folder);
 		}
 	}
