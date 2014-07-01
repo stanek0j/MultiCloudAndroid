@@ -27,6 +27,8 @@ public class TaskDialog extends ProgressDialog {
 	private final int message;
 	/** If indeterminate progress dialog should be created. */
 	private final boolean indeterminate;
+	/** If the dialog was aborted. */
+	private boolean aborted;
 
 	/**
 	 * Ctor with necessary parameters.
@@ -40,6 +42,7 @@ public class TaskDialog extends ProgressDialog {
 		this.context = context;
 		this.message = message;
 		this.indeterminate = indeterminate;
+		this.aborted = false;
 		prepareDialog();
 	}
 
@@ -56,7 +59,16 @@ public class TaskDialog extends ProgressDialog {
 		this.context = context;
 		this.message = message;
 		this.indeterminate = indeterminate;
+		this.aborted = false;
 		prepareDialog();
+	}
+
+	/**
+	 * Returns if the dialog was aborted.
+	 * @return If the dialog was aborted.
+	 */
+	public boolean isAborted() {
+		return aborted;
 	}
 
 	/**
@@ -93,6 +105,7 @@ public class TaskDialog extends ProgressDialog {
 				} catch (InterruptedException e) {
 					Log.e(MainActivity.MULTICLOUD_NAME, e.getMessage());
 				}
+				aborted = true;
 				cancel();
 			}
 		});

@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -39,9 +41,10 @@ import cz.zcu.kiv.multicloudandroid.display.ItemSelectedHandler;
 import cz.zcu.kiv.multicloudandroid.fragment.AccountFragment;
 import cz.zcu.kiv.multicloudandroid.fragment.ItemFragment;
 import cz.zcu.kiv.multicloudandroid.tasks.AuthorizeTask;
+import cz.zcu.kiv.multicloudandroid.tasks.ChecksumTask;
 import cz.zcu.kiv.multicloudandroid.tasks.InformationTask;
 import cz.zcu.kiv.multicloudandroid.tasks.ListTask;
-import cz.zcu.kiv.multicloudandroid.tasks.RefreshTask;
+import cz.zcu.kiv.multicloudandroid.tasks.LoadTask;
 
 /**
  * cz.zcu.kiv.multicloudandroid/MainActivity.java			<br /><br />
@@ -80,7 +83,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	/** Current folder. */
 	private FileInfo currentFolder;
 	/** Checksum cache for remote files. */
-	private final ChecksumProvider cache;
+	private ChecksumProvider cache;
 
 	/** If folder should be added to folder stack. */
 	private boolean addToStack = false;
@@ -92,7 +95,6 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	 */
 	public MainActivity() {
 		currentPath = new LinkedList<>();
-		cache = new ChecksumProvider();
 	}
 
 	/**
@@ -128,7 +130,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 					currentPath.add(folder);
 				}
 				getActionBar().setDisplayHomeAsUpEnabled(currentPath.size() > 1);
-				if (folder.getName() == null) {
+				if (folder.getName() == null || currentFolder.getName().isEmpty()) {
 					getActionBar().setTitle("[" + currentAccount.getName() + " - root]");
 				} else {
 					getActionBar().setTitle(folder.getName());
@@ -144,6 +146,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	 * @param account Account to be removed.
 	 */
 	public void actionRemoveAccount(Account account) {
+		cache.removeAccount(account.getName());
 		AccountFragment fragment = (AccountFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
 		if (fragment != null) {
 			fragment.accountRemove(account);
@@ -156,6 +159,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	 * @param name New account name.
 	 */
 	public void actionRenameAccount(Account account, String name) {
+		cache.renameAccount(account.getName(), name);
 		AccountFragment fragment = (AccountFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
 		if (fragment != null) {
 			fragment.accountRename(account, name);
@@ -219,6 +223,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	public void loadAccounts() {
 		ListFragment fragment = (ListFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
 		if (fragment != null) {
+			List<Account> accountList = new ArrayList<>();
 			AccountAdapter accounts = (AccountAdapter) fragment.getListAdapter();
 			accounts.clear();
 			for (AccountSettings as: cloud.getSettings().getAccountManager().getAllAccountSettings()) {
@@ -227,6 +232,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				a.setCloud(as.getSettingsId());
 				a.setName(as.getAccountId());
 				accounts.add(a);
+				accountList.add(a);
 			}
 			if (accounts.isEmpty()) {
 				Account a = new Account();
@@ -236,6 +242,8 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				accounts.add(a);
 			}
 			accounts.notifyDataSetChanged();
+			LoadTask load = new LoadTask(this, accountList);
+			load.execute();
 		}
 	}
 
@@ -280,7 +288,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 					addToStack = true;
 				} else {
 					actionBar.setDisplayHomeAsUpEnabled(currentPath.size() > 1);
-					if (currentFolder.getName() == null) {
+					if (currentFolder.getName() == null || currentFolder.getName().isEmpty()) {
 						actionBar.setTitle("[" + currentAccount.getName() + " - root]");
 					} else {
 						actionBar.setTitle(currentFolder.getName());
@@ -331,11 +339,22 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 		setContentView(R.layout.activity_main);
 		prefs = new PrefsHelper(this);
 		dialogs = new DialogCreator(this);
+		cache = new ChecksumProvider(new File(getFilesDir(), ChecksumProvider.CHECKSUM_FILE));
+
+		File dir = getFilesDir();
+		for (File f: dir.listFiles()) {
+			Log.wtf("file", f.getName() + " :: " + f.length());
+		}
 
 		if (cloud == null) {
 			MultiCloudSettings settings = new MultiCloudSettings();
 			FileAccountManager accountManager = FileAccountManager.getInstance();
 			accountManager.setSettingsFile(new File(getFilesDir(), FileAccountManager.DEFAULT_FILE));
+			try {
+				accountManager.loadAccountSettings();
+			} catch (IOException e) {
+				Log.e(MULTICLOUD_NAME, e.getMessage());
+			}
 			settings.setAccountManager(accountManager);
 			FileCloudManager cloudManager = FileCloudManager.getInstance();
 			try {
@@ -424,6 +443,8 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				dialogs.dialogFileDelete(item);
 				break;
 			case CHECKSUM:
+				ChecksumTask checksum = new ChecksumTask(this, item);
+				checksum.execute();
 				break;
 			case PROPERTIES:
 				dialogs.dialogFileProperties(item);
@@ -454,12 +475,11 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				Fragment accounts = getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
 				Fragment items = getSupportFragmentManager().findFragmentByTag(ITEM_FRAGMENT_TAG);
 				if (accounts != null && accounts.isVisible()) {
-					RefreshTask refreshTask = new RefreshTask(this);
-					refreshTask.execute();
+					loadAccounts();
 				}
 				if (items != null && items.isVisible()) {
-					ListTask listTask = new ListTask(this);
-					listTask.execute();
+					ListTask list = new ListTask(this);
+					list.execute();
 				}
 			}
 			break;

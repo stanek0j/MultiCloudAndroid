@@ -43,9 +43,13 @@ public class RenameTask extends MultiCloudTask {
 	@Override
 	protected void doInBackgroundExtended() {
 		try {
-			cloud.rename(account.getName(), file, name);
+			readRemoteCache();
+			FileInfo renamed = cloud.rename(account.getName(), file, name);
+			renamed.setChecksum(file.getChecksum());
+			cache.update(account.getName(), file, renamed);
 			PrefsHelper prefs = activity.getPrefsHelper();
 			folder = cloud.listFolder(account.getName(), activity.getCurrentFolder(), prefs.isShowDeleted(), prefs.isShowShared());
+			writeRemoteCache();
 		} catch (MultiCloudException | OAuth2SettingsException | InterruptedException e) {
 			error = e.getMessage();
 		}

@@ -64,21 +64,64 @@ public class UploadTask extends MultiCloudTask {
 		dialog.setMax((int) DialogProgressListener.PROGRESS_SIZE);
 		dialog.setProgressNumberFormat(activity.getText(R.string.desc_total_size) + " " + Utils.formatSize(source.length(), UnitsFormat.BINARY));
 		listener.setDialog(dialog);
-		cloud.setListener(listener);
 		try {
 			checksum = cache.computeChecksum(source);
-			//readRemoteCache();
+			readRemoteCache();
+			cloud.setListener(listener);
 			if (destination == null) {
 				cloud.uploadFile(account.getName(), destinationFolder, source.getName(), overwrite, source);
 			} else {
 				cloud.updateFile(account.getName(), destinationFolder, destination, source.getName(), source);
 			}
+			dialog.setIndeterminate(true);
 			PrefsHelper prefs = activity.getPrefsHelper();
 			folder = cloud.listFolder(account.getName(), activity.getCurrentFolder(), prefs.isShowDeleted(), prefs.isShowShared());
+			if (folder != null) {
+				for (FileInfo content: folder.getContent()) {
+					if (!destinationFolder.getContent().contains(content)) {
+						/* new file uploaded */
+						if (content.getName().equals(source.getName()) && content.getSize() == source.length()) {
+							content.setChecksum(checksum);
+							cache.add(account.getName(), content);
+							break;
+						}
+					} else {
+						if (destination == null) {
+							continue;
+						}
+						/* match ID if present */
+						boolean condId = false;
+						if ((content.getId() == null) && (destination.getId() == null)) {
+							condId = true;
+						} else if ((content.getId() != null) && (destination.getId() != null)) {
+							condId = content.getId().equals(destination.getId());
+						} else {
+							continue;
+						}
+						/* match PATH if present */
+						boolean condPath = false;
+						if ((content.getPath() == null) && (destination.getPath() == null)) {
+							condPath = true;
+						} else if ((content.getPath() != null) && (destination.getPath() != null)) {
+							condPath = content.getPath().equals(destination.getPath());
+						} else {
+							continue;
+						}
+						/* match NAME */
+						boolean condName = (destination != null && content.getName().equals(destination.getName()));
+						if (condId && condPath && condName) {
+							content.setChecksum(checksum);
+							cache.add(account.getName(), content);
+							break;
+						}
+					}
+				}
+				cloud.setListener(null);
+				writeRemoteCache();
+			}
 		} catch (MultiCloudException | OAuth2SettingsException | InterruptedException e) {
 			error = e.getMessage();
 		}
-		cloud.setListener(null);
 	}
 
 	/**
@@ -87,48 +130,8 @@ public class UploadTask extends MultiCloudTask {
 	@Override
 	protected void onPostExecuteExtended() {
 		if (folder != null) {
-			for (FileInfo content: folder.getContent()) {
-				if (!destinationFolder.getContent().contains(content)) {
-					/* new file uploaded */
-					if (content.getName().equals(source.getName()) && content.getSize() == source.length()) {
-						content.setChecksum(checksum);
-						cache.add(account.getName(), content);
-						break;
-					}
-				} else {
-					if (destination == null) {
-						continue;
-					}
-					/* match ID if present */
-					boolean condId = false;
-					if ((content.getId() == null) && (destination.getId() == null)) {
-						condId = true;
-					} else if ((content.getId() != null) && (destination.getId() != null)) {
-						condId = content.getId().equals(destination.getId());
-					} else {
-						continue;
-					}
-					/* match PATH if present */
-					boolean condPath = false;
-					if ((content.getPath() == null) && (destination.getPath() == null)) {
-						condPath = true;
-					} else if ((content.getPath() != null) && (destination.getPath() != null)) {
-						condPath = content.getPath().equals(destination.getPath());
-					} else {
-						continue;
-					}
-					/* match NAME */
-					boolean condName = (destination != null && content.getName().equals(destination.getName()));
-					if (condId && condPath && condName) {
-						content.setChecksum(checksum);
-						cache.add(account.getName(), content);
-						break;
-					}
-				}
-			}
 			cache.provideChecksum(account.getName(), folder);
 			cache.provideChecksum(account.getName(), folder.getContent());
-			//writeRemoteCache();
 			activity.actionListItem(folder);
 		}
 	}

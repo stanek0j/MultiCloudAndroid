@@ -44,15 +44,23 @@ public class ChecksumProvider {
 	private final Map<String, FileInfo> root;
 	/** JSON parser instance. */
 	private final Json json;
+	/** Cache file. */
+	private final File checksumFile;
 
 	/**
-	 * Empty ctor.
+	 * Ctor with checksum file.
+	 * @cacheFile Checksum file.
 	 */
-	public ChecksumProvider() {
+	public ChecksumProvider(File checksumFile) {
 		json = Json.getInstance();
 		accounts = new HashMap<>();
 		remote = new HashMap<>();
 		root = new HashMap<>();
+		if (checksumFile == null) {
+			this.checksumFile = new File(CHECKSUM_FILE);
+		} else {
+			this.checksumFile = checksumFile;
+		}
 		cacheLoad();
 	}
 
@@ -103,7 +111,7 @@ public class ChecksumProvider {
 	private void cacheLoad() {
 		try {
 			ObjectMapper mapper = json.getMapper();
-			cache = mapper.readValue(new File(CHECKSUM_FILE), ChecksumCache.class);
+			cache = mapper.readValue(checksumFile, ChecksumCache.class);
 			if (cache.getRemote() == null) {
 				cache.setRemote(new HashMap<String, Date>());
 			}
@@ -122,7 +130,7 @@ public class ChecksumProvider {
 		try {
 			cache.setModified(new Date());
 			ObjectMapper mapper = json.getMapper();
-			mapper.writerWithDefaultPrettyPrinter().writeValue(new File(CHECKSUM_FILE), cache);
+			mapper.writerWithDefaultPrettyPrinter().writeValue(checksumFile, cache);
 		} catch (IOException e) {
 			/* ignore if saving failed */
 		}
@@ -241,6 +249,14 @@ public class ChecksumProvider {
 	 */
 	public synchronized boolean contains(String account, FileInfo file) {
 		return contains(new Checksum(accounts.get(account), file));
+	}
+
+	/**
+	 * Returns the checksum file.
+	 * @return Checksum file.
+	 */
+	public File getChecksumFile() {
+		return checksumFile;
 	}
 
 	/**

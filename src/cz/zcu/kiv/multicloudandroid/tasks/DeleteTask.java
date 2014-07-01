@@ -39,9 +39,12 @@ public class DeleteTask extends MultiCloudTask {
 	@Override
 	protected void doInBackgroundExtended() {
 		try {
+			readRemoteCache();
 			cloud.delete(account.getName(), file);
+			cache.remove(account.getName(), file);
 			PrefsHelper prefs = activity.getPrefsHelper();
 			folder = cloud.listFolder(account.getName(), activity.getCurrentFolder(), prefs.isShowDeleted(), prefs.isShowShared());
+			writeRemoteCache();
 		} catch (MultiCloudException | OAuth2SettingsException | InterruptedException e) {
 			error = e.getMessage();
 		}

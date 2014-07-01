@@ -17,6 +17,14 @@
     <string name="action_delete">Delete</string>
     <string name="action_checksum">Checksum</string>
     <string name="action_properties">Properties</string>
+    <string name="button_ok">OK</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_abort">Abort</string>
+    <string name="button_yes">Yes</string>
+    <string name="button_no">No</string>
+    <string name="button_parent">Parent</string>
+    <string name="button_clear">Clear</string>
+    <string name="button_folder">New folder</string>
     <string name="desc_account">Account name</string>
     <string name="desc_add_account">Click to add account.</string>
     <string name="desc_checksum">Checksum:</string>
@@ -46,27 +54,10 @@
     <string name="desc_total_space">Total space:</string>
     <string name="desc_user_id">User ID:</string>
     <string name="desc_user_name">User name:</string>
-    <string name="wait_authorize">Waiting for authorization&#8230;</string>
-    <string name="wait_delete">Deleting&#8230;</string>
-    <string name="wait_download">Downloading&#8230;</string>
-    <string name="wait_info">Getting account information&#8230;</string>
-    <string name="wait_list">Loading folder content&#8230;</string>
-    <string name="wait_load">Loading&#8230;</string>
-    <string name="wait_new_folder">Creating new folder&#8230;</string>
-    <string name="wait_refresh">Refreshing&#8230;</string>
-    <string name="wait_rename">Renaming&#8230;</string>
-    <string name="wait_upload">Uploading&#8230;</string>
-    <string name="button_ok">OK</string>
-    <string name="button_cancel">Cancel</string>
-    <string name="button_abort">Abort</string>
-    <string name="button_yes">Yes</string>
-    <string name="button_no">No</string>
-    <string name="button_parent">Parent</string>
-    <string name="button_clear">Clear</string>
-    <string name="button_folder">New folder</string>
     <string name="err_generic">Error</string>
     <string name="err_authorized">Account already authorized.</string>
     <string name="err_not_authorized">Account not authorized.</string>
+    <string name="err_aborted">Loading aborted.</string>
     <string name="err_op_cancel">Operation cancelled.</string>
     <string name="err_folder">Cannot save as folder.</string>
     <string name="err_no_local_file">No local file selected.</string>
@@ -85,6 +76,16 @@
     <string name="prefs_download">Download options</string>
     <string name="prefs_threads">Threads</string>
     <string name="prefs_threads_desc">Number of download threads:</string>
+    <string name="wait_authorize">Waiting for authorization&#8230;</string>
+    <string name="wait_checksum">Computing checksum&#8230;</string>
+    <string name="wait_delete">Deleting&#8230;</string>
+    <string name="wait_download">Downloading&#8230;</string>
+    <string name="wait_info">Getting account information&#8230;</string>
+    <string name="wait_list">Loading folder content&#8230;</string>
+    <string name="wait_load">Loading&#8230;</string>
+    <string name="wait_new_folder">Creating new folder&#8230;</string>
+    <string name="wait_rename">Renaming&#8230;</string>
+    <string name="wait_upload">Uploading&#8230;</string>
     
 
 </resources>
