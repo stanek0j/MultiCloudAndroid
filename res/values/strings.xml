@@ -55,6 +55,7 @@
     <string name="wait_new_folder">Creating new folder&#8230;</string>
     <string name="wait_refresh">Refreshing&#8230;</string>
     <string name="wait_rename">Renaming&#8230;</string>
+    <string name="wait_upload">Uploading&#8230;</string>
     <string name="button_ok">OK</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_abort">Abort</string>
@@ -68,7 +69,9 @@
     <string name="err_not_authorized">Account not authorized.</string>
     <string name="err_op_cancel">Operation cancelled.</string>
     <string name="err_folder">Cannot save as folder.</string>
-    <string name="err_no_name">No target file name entered.</string>
+    <string name="err_no_local_file">No local file selected.</string>
+    <string name="err_no_local_name">No target file name entered.</string>
+    <string name="err_no_name">No name entered.</string>
     <string name="err_no_overwrite">Overwriting not allowed.</string>
     <string name="prefs_display">Display options</string>
     <string name="prefs_show_deleted">Show deleted files</string>

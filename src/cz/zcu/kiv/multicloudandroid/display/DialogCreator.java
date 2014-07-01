@@ -31,6 +31,7 @@ import cz.zcu.kiv.multicloudandroid.tasks.DeleteTask;
 import cz.zcu.kiv.multicloudandroid.tasks.DownloadTask;
 import cz.zcu.kiv.multicloudandroid.tasks.NewFolderTask;
 import cz.zcu.kiv.multicloudandroid.tasks.RenameTask;
+import cz.zcu.kiv.multicloudandroid.tasks.UploadTask;
 
 /**
  * cz.zcu.kiv.multicloudandroid.display/DialogCreator.java			<br /><br />
@@ -49,6 +50,8 @@ public class DialogCreator {
 	private File file;
 	/** Selected folder. */
 	private File folder;
+	/** Destination file. */
+	private FileInfo dst;
 
 	/**
 	 * Ctor with activity as parameter.
@@ -220,8 +223,8 @@ public class DialogCreator {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						EditText text = (EditText) view.findViewById(R.id.editText_file_folder_name);
-						if (text.getText().toString().trim().length() == 0) {
-							activity.showToast(R.string.err_no_name);
+						if (text.getText().toString().trim().isEmpty()) {
+							activity.showToast(R.string.err_no_local_name);
 						} else {
 							file = new File(folder, text.getText().toString().trim());
 							if (file.exists()) {
@@ -353,7 +356,7 @@ public class DialogCreator {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						EditText text = (EditText) view.findViewById(R.id.editText_file_folder_name);
-						File newFolder = new File(folder, text.getText().toString());
+						File newFolder = new File(folder, text.getText().toString().trim());
 						if (newFolder.mkdir()) {
 							adapter.clear();
 							adapter.addAll(filterFolderContent(folder));
@@ -419,8 +422,12 @@ public class DialogCreator {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				EditText text = (EditText) view.findViewById(R.id.editText_file_folder_name);
-				NewFolderTask newFolder = new NewFolderTask(activity, text.getText().toString());
-				newFolder.execute();
+				if (text.getText().toString().trim().isEmpty()) {
+					activity.showToast(R.string.err_no_name);
+				} else {
+					NewFolderTask newFolder = new NewFolderTask(activity, text.getText().toString().trim());
+					newFolder.execute();
+				}
 			}
 		})
 		.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
@@ -506,8 +513,12 @@ public class DialogCreator {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				EditText text = (EditText) view.findViewById(R.id.editText_file_folder_name);
-				RenameTask rename = new RenameTask(activity, file, text.getText().toString());
-				rename.execute();
+				if (text.getText().toString().trim().isEmpty()) {
+					activity.showToast(R.string.err_no_name);
+				} else {
+					RenameTask rename = new RenameTask(activity, file, text.getText().toString().trim());
+					rename.execute();
+				}
 			}
 		})
 		.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
@@ -530,6 +541,188 @@ public class DialogCreator {
 		}
 		text.setText(file.getName());
 		text.setSelection(text.getText().length());
+	}
+
+	/**
+	 * Dialog for uploading file.
+	 * @param destination Destination folder.
+	 */
+	public void dialogFileUpload(final FileInfo destination) {
+		folder = new File(activity.getPrefsHelper().getLastFolder());
+		file = null;
+		final View view = activity.getLayoutInflater().inflate(R.layout.file_chooser_dialog, null);
+		AlertDialog dialog = new AlertDialog.Builder(activity)
+		.setTitle(R.string.action_upload)
+		.setView(view)
+		.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (file == null) {
+					activity.showToast(R.string.err_no_local_file);
+				} else {
+					boolean found = false;
+					for (FileInfo f: destination.getContent()) {
+						if (file.getName().equals(f.getName())) {
+							dst = f;
+							found = true;
+							break;
+						}
+					}
+					if (found) {
+						AlertDialog confirmDialog = new AlertDialog.Builder(activity)
+						.setTitle(R.string.desc_overwrite)
+						.setMessage(R.string.desc_overwrite_msg)
+						.setPositiveButton(R.string.button_yes, new DialogInterface.OnClickListener() {
+							/**
+							 * {@inheritDoc}
+							 */
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								UploadTask upload = new UploadTask(activity, file, dst, destination, true);
+								upload.execute();
+							}
+						})
+						.setNegativeButton(R.string.button_no, new DialogInterface.OnClickListener() {
+							/**
+							 * {@inheritDoc}
+							 */
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								activity.showToast(R.string.err_no_overwrite);
+								dialog.cancel();
+							}
+						})
+						.create();
+						confirmDialog.show();
+					} else {
+						UploadTask upload = new UploadTask(activity, file, null, destination, false);
+						upload.execute();
+					}
+				}
+			}
+		})
+		.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				activity.showToast(R.string.err_op_cancel);
+				dialog.cancel();
+			}
+		})
+		.create();
+		dialog.show();
+		final TextView path = (TextView) view.findViewById(R.id.textView_path);
+		path.setText(folder.getAbsolutePath());
+		final TextView empty = (TextView) view.findViewById(R.id.textView_emtpy_folder);
+		final ListView list = (ListView) view.findViewById(R.id.listView_files);
+		final FileAdapter adapter = new FileAdapter(activity, android.R.layout.simple_list_item_activated_1, filterFolderContent(folder));
+		list.setAdapter(adapter);
+		list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				File selected = (File) list.getItemAtPosition(position);
+				if (selected.isDirectory()) {
+					file = null;
+					folder = selected;
+					path.setText(folder.getAbsolutePath());
+				} else {
+					file = selected;
+					folder = file.getParentFile();
+					path.setText(file.getAbsolutePath());
+				}
+				activity.getPrefsHelper().setLastFolder(folder.getAbsolutePath());
+				adapter.clear();
+				adapter.addAll(filterFolderContent(folder));
+				adapter.notifyDataSetChanged();
+				if (adapter.isEmpty()) {
+					empty.setVisibility(View.VISIBLE);
+				} else {
+					empty.setVisibility(View.GONE);
+				}
+			}
+		});
+		if (adapter.isEmpty()) {
+			empty.setVisibility(View.VISIBLE);
+		} else {
+			empty.setVisibility(View.GONE);
+		}
+		Button btnClear = (Button) view.findViewById(R.id.button_clear);
+		btnClear.setVisibility(View.GONE);
+		Button btnNewFolder = (Button) view.findViewById(R.id.button_folder);
+		btnNewFolder.setOnClickListener(new View.OnClickListener() {
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void onClick(View v) {
+				final View view = LayoutInflater.from(activity).inflate(R.layout.file_name_dialog, null);
+				AlertDialog dialog = new AlertDialog.Builder(activity)
+				.setTitle(R.string.action_new_folder)
+				.setView(view)
+				.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+					/**
+					 * {@inheritDoc}
+					 */
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						EditText text = (EditText) view.findViewById(R.id.editText_file_folder_name);
+						File newFolder = new File(folder, text.getText().toString().trim());
+						if (newFolder.mkdir()) {
+							adapter.clear();
+							adapter.addAll(filterFolderContent(folder));
+							adapter.notifyDataSetChanged();
+							if (adapter.isEmpty()) {
+								empty.setVisibility(View.VISIBLE);
+							} else {
+								empty.setVisibility(View.GONE);
+							}
+						}
+					}
+				})
+				.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+					/**
+					 * {@inheritDoc}
+					 */
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+				})
+				.create();
+				dialog.show();
+				EditText text = (EditText) dialog.findViewById(R.id.editText_file_folder_name);
+				text.setHint(R.string.desc_enter_folder);
+			}
+		});
+		Button btnParent = (Button) view.findViewById(R.id.button_parent);
+		btnParent.setOnClickListener(new View.OnClickListener() {
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void onClick(View v) {
+				if (folder.getParentFile() != null) {
+					folder = folder.getParentFile();
+					adapter.clear();
+					adapter.addAll(filterFolderContent(folder));
+					adapter.notifyDataSetChanged();
+					if (adapter.isEmpty()) {
+						empty.setVisibility(View.VISIBLE);
+					} else {
+						empty.setVisibility(View.GONE);
+					}
+					path.setText(folder.getAbsolutePath());
+				}
+			}
+		});
 	}
 
 	/**

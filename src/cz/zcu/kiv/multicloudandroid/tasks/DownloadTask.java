@@ -16,7 +16,7 @@ import cz.zcu.kiv.multicloudandroid.display.TaskDialog;
 /**
  * cz.zcu.kiv.multicloudandroid.tasks/DownloadTask.java			<br /><br />
  *
- * Task for downloadinng files.
+ * Task for downloading files.
  *
  * @author Jaromír Staněk
  * @version 1.0
@@ -24,9 +24,9 @@ import cz.zcu.kiv.multicloudandroid.display.TaskDialog;
  */
 public class DownloadTask extends MultiCloudTask {
 
-	/** File t be downladed. */
+	/** File to be downloaded. */
 	private final FileInfo source;
-	/** Local fole to download to. */
+	/** Local file to download to. */
 	private final File destination;
 	/** If existing local file should be overwritten. */
 	private final boolean overwrite;
@@ -34,6 +34,9 @@ public class DownloadTask extends MultiCloudTask {
 	/**
 	 * Ctor with necessary parameters.
 	 * @param activity Activity.
+	 * @param source File to be downloaded.
+	 * @param destination Local file to download to.
+	 * @param overwrite If existing local file should be overwritten.
 	 */
 	public DownloadTask(MainActivity activity, FileInfo source, File destination, boolean overwrite) {
 		super(activity, R.string.wait_download, false);

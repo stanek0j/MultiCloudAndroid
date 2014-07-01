@@ -153,7 +153,7 @@ public class FilePreference extends DialogPreference {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						EditText text = (EditText) view.findViewById(R.id.editText_file_folder_name);
-						File folder = new File(file, text.getText().toString());
+						File folder = new File(file, text.getText().toString().trim());
 						if (folder.mkdir()) {
 							adapter.clear();
 							adapter.addAll(filterFolderContent(file));

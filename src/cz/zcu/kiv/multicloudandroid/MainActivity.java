@@ -447,7 +447,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 			dialogs.dialogFileNewFolder();
 			break;
 		case R.id.item_upload:
-			Toast.makeText(this, "upload", Toast.LENGTH_SHORT).show();
+			dialogs.dialogFileUpload(currentFolder);
 			break;
 		case R.id.item_refresh:
 			if (findViewById(R.id.container) != null) {
