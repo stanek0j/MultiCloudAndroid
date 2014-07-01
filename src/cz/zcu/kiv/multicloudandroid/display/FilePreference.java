@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import cz.zcu.kiv.multicloudandroid.MainActivity;
 import cz.zcu.kiv.multicloudandroid.R;
 
 /**
@@ -30,9 +30,6 @@ import cz.zcu.kiv.multicloudandroid.R;
  *
  */
 public class FilePreference extends DialogPreference {
-
-	/** Root folder path. */
-	public static final String ROOT_FOLDER = "/";
 
 	/** Selected file. */
 	private File file;
@@ -58,10 +55,13 @@ public class FilePreference extends DialogPreference {
 	 * @return List of files.
 	 */
 	private List<File> filterFolderContent(File file) {
-		if (!file.isDirectory()) {
-			return null;
-		}
 		List<File> show = new ArrayList<>();
+		if (!file.isDirectory()) {
+			return show;
+		}
+		if (file.listFiles() == null) {
+			return show;
+		}
 		for (File f: file.listFiles()) {
 			if (foldersOnly) {
 				if (f.isDirectory()) {
@@ -82,20 +82,20 @@ public class FilePreference extends DialogPreference {
 		super.onBindDialogView(view);
 		String savedPath = getSharedPreferences().getString(getKey(), null);
 		if (savedPath == null) {
-			file = new File(ROOT_FOLDER);
+			file = new File(MainActivity.ROOT_FOLDER);
 		} else {
 			file = new File(savedPath);
 			if (!file.exists()) {
-				file = new File(ROOT_FOLDER);
+				file = new File(MainActivity.ROOT_FOLDER);
 			} else {
 				if (foldersOnly && !file.isDirectory()) {
-					file = new File(ROOT_FOLDER);
+					file = new File(MainActivity.ROOT_FOLDER);
 				}
 			}
 		}
-		Log.wtf("test", file.getAbsolutePath());
 		final TextView path = (TextView) view.findViewById(R.id.textView_path);
 		path.setText(file.getAbsolutePath());
+		final TextView empty = (TextView) view.findViewById(R.id.textView_emtpy_folder);
 		final ListView list = (ListView) view.findViewById(R.id.listView_files);
 		final FileAdapter adapter = new FileAdapter(getContext(), android.R.layout.simple_list_item_activated_1, filterFolderContent(file));
 		list.setAdapter(adapter);
@@ -110,9 +110,19 @@ public class FilePreference extends DialogPreference {
 				adapter.clear();
 				adapter.addAll(filterFolderContent(file));
 				adapter.notifyDataSetChanged();
+				if (adapter.isEmpty()) {
+					empty.setVisibility(View.VISIBLE);
+				} else {
+					empty.setVisibility(View.GONE);
+				}
 				path.setText(file.getAbsolutePath());
 			}
 		});
+		if (adapter.isEmpty()) {
+			empty.setVisibility(View.VISIBLE);
+		} else {
+			empty.setVisibility(View.GONE);
+		}
 		Button btnClear = (Button) view.findViewById(R.id.button_clear);
 		btnClear.setOnClickListener(new View.OnClickListener() {
 			/**
@@ -148,6 +158,11 @@ public class FilePreference extends DialogPreference {
 							adapter.clear();
 							adapter.addAll(filterFolderContent(file));
 							adapter.notifyDataSetChanged();
+							if (adapter.isEmpty()) {
+								empty.setVisibility(View.VISIBLE);
+							} else {
+								empty.setVisibility(View.GONE);
+							}
 						}
 					}
 				})
@@ -178,6 +193,11 @@ public class FilePreference extends DialogPreference {
 					adapter.clear();
 					adapter.addAll(filterFolderContent(file));
 					adapter.notifyDataSetChanged();
+					if (adapter.isEmpty()) {
+						empty.setVisibility(View.VISIBLE);
+					} else {
+						empty.setVisibility(View.GONE);
+					}
 					path.setText(file.getAbsolutePath());
 				}
 			}

@@ -54,12 +54,18 @@ import cz.zcu.kiv.multicloudandroid.tasks.RefreshTask;
  */
 public class MainActivity extends FragmentActivity implements AccountSelectedHandler, ItemSelectedHandler {
 
+	/** Tag for identifying account fragment. */
 	public static final String ACCOUNT_FRAGMENT_TAG = "ACCOUNTS";
+	/** Tag for identifying item fragment. */
 	public static final String ITEM_FRAGMENT_TAG = "ITEMS";
+	/** Tag for identifying preferences fragment. */
 	public static final String PREFS_FRAGMENT_TAG = "PREFS";
-	public static final String KEY_ACCOUNT = "account";
-	public static final String MULTICLOUD_NAME = "MultiCLoud";
+	/** Name of the application for logging purposes. */
+	public static final String MULTICLOUD_NAME = "MultiCloud";
+	/** Format for displaying dates. */
 	public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	/** Root folder path. */
+	public static final String ROOT_FOLDER = "/";
 
 	/** Preferences helper. */
 	private PrefsHelper prefs;
@@ -67,7 +73,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	private DialogCreator dialogs;
 	/** MultiCloud library. */
 	private MultiCloud cloud;
-	/** Current path. */
+	/** Stack of folders for holding current path. */
 	private final LinkedList<FileInfo> currentPath;
 	/** Current account. */
 	private Account currentAccount;
@@ -76,14 +82,23 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	/** Checksum cache for remote files. */
 	private final ChecksumProvider cache;
 
+	/** If folder should be added to folder stack. */
 	private boolean addToStack = false;
+	/** If saved account should be loaded. */
 	private boolean load = true;
 
+	/**
+	 * Empty ctor.
+	 */
 	public MainActivity() {
 		currentPath = new LinkedList<>();
 		cache = new ChecksumProvider();
 	}
 
+	/**
+	 * Callback for adding account.
+	 * @param account Account to be added.
+	 */
 	public void actionAddAccount(Account account) {
 		AccountFragment fragment = (AccountFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
 		if (fragment != null) {
@@ -91,10 +106,19 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 		}
 	}
 
+	/**
+	 * Callback for displaying account information.
+	 * @param info Account information.
+	 * @param quota Account quota.
+	 */
 	public void actionInformationAccount(AccountInfo info, AccountQuota quota) {
 		dialogs.dialogAccountInfo(info, quota);
 	}
 
+	/**
+	 * Callback for listing folder content.
+	 * @param folder Folder content.
+	 */
 	public void actionListItem(FileInfo folder) {
 		ItemFragment fragment = (ItemFragment) getSupportFragmentManager().findFragmentByTag(ITEM_FRAGMENT_TAG);
 		if (fragment != null) {
@@ -115,6 +139,10 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 		}
 	}
 
+	/**
+	 * Callback for removing account.
+	 * @param account Account to be removed.
+	 */
 	public void actionRemoveAccount(Account account) {
 		AccountFragment fragment = (AccountFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
 		if (fragment != null) {
@@ -122,6 +150,11 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 		}
 	}
 
+	/**
+	 * Callback for renaming account.
+	 * @param account Account to be renamed.
+	 * @param name New account name.
+	 */
 	public void actionRenameAccount(Account account, String name) {
 		AccountFragment fragment = (AccountFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
 		if (fragment != null) {
@@ -129,6 +162,10 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 		}
 	}
 
+	/**
+	 * Callback for updating account information.
+	 * @param account Account.
+	 */
 	public void actionUpdateAccount(Account account) {
 		AccountFragment fragment = (AccountFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
 		if (fragment != null) {
@@ -136,22 +173,42 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 		}
 	}
 
+	/**
+	 * Returns the checksum provider.
+	 * @return Checksum provider.
+	 */
 	public synchronized ChecksumProvider getCache() {
 		return cache;
 	}
 
+	/**
+	 * Returns current account.
+	 * @return Current account.
+	 */
 	public synchronized Account getCurrentAccount() {
 		return currentAccount;
 	}
 
+	/**
+	 * Returns current folder.
+	 * @return Current folder.
+	 */
 	public synchronized FileInfo getCurrentFolder() {
 		return currentFolder;
 	}
 
+	/**
+	 * Returns the MultiCloud library.
+	 * @return MultiCloud library.
+	 */
 	public synchronized MultiCloud getLibrary() {
 		return cloud;
 	}
 
+	/**
+	 * Returns the preference helper.
+	 * @return Preference helper.
+	 */
 	public synchronized PrefsHelper getPrefsHelper() {
 		return prefs;
 	}
@@ -223,7 +280,11 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 					addToStack = true;
 				} else {
 					actionBar.setDisplayHomeAsUpEnabled(currentPath.size() > 1);
-					actionBar.setTitle(currentFolder.getName());
+					if (currentFolder.getName() == null) {
+						actionBar.setTitle("[" + currentAccount.getName() + " - root]");
+					} else {
+						actionBar.setTitle(currentFolder.getName());
+					}
 				}
 				persistAccount = true;
 				ItemFragment itemFragment = new ItemFragment();
@@ -354,6 +415,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				listTask.execute();
 				break;
 			case DOWNLOAD:
+				dialogs.dialogFileDownload(item);
 				break;
 			case RENAME:
 				dialogs.dialogFileRename(item);

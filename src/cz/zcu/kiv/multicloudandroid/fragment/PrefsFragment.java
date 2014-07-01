@@ -47,12 +47,18 @@ public class PrefsFragment extends PreferenceFragment implements OnSharedPrefere
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onPause() {
 		super.onPause();
 		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -66,6 +72,9 @@ public class PrefsFragment extends PreferenceFragment implements OnSharedPrefere
 		getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (key.equals(PrefsHelper.PREFS_THREADS)) {

@@ -3,7 +3,9 @@ package cz.zcu.kiv.multicloudandroid.display;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 import cz.zcu.kiv.multicloud.MultiCloud;
+import cz.zcu.kiv.multicloudandroid.MainActivity;
 import cz.zcu.kiv.multicloudandroid.R;
 
 /**
@@ -23,6 +25,8 @@ public class TaskDialog extends ProgressDialog {
 	private final Context context;
 	/** Message to be displayed. */
 	private final int message;
+	/** If indeterminate progress dialog should be created. */
+	private final boolean indeterminate;
 
 	/**
 	 * Ctor with necessary parameters.
@@ -30,11 +34,12 @@ public class TaskDialog extends ProgressDialog {
 	 * @param context Context.
 	 * @param message Message to be displayed.
 	 */
-	public TaskDialog(MultiCloud cloud, Context context, int message) {
+	public TaskDialog(MultiCloud cloud, Context context, int message, boolean indeterminate) {
 		super(context);
 		this.cloud = cloud;
 		this.context = context;
 		this.message = message;
+		this.indeterminate = indeterminate;
 		prepareDialog();
 	}
 
@@ -45,11 +50,12 @@ public class TaskDialog extends ProgressDialog {
 	 * @param theme Theme.
 	 * @param message Message to be displayed.
 	 */
-	public TaskDialog(MultiCloud cloud, Context context, int theme, int message) {
+	public TaskDialog(MultiCloud cloud, Context context, int theme, int message, boolean indeterminate) {
 		super(context, theme);
 		this.cloud = cloud;
 		this.context = context;
 		this.message = message;
+		this.indeterminate = indeterminate;
 		prepareDialog();
 	}
 
@@ -58,7 +64,12 @@ public class TaskDialog extends ProgressDialog {
 	 */
 	private void prepareDialog() {
 		setCancelable(false);
-		setIndeterminate(true);
+		setIndeterminate(indeterminate);
+		if (indeterminate) {
+			setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		} else {
+			setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		}
 		setMessage(context.getText(message));
 		setButton(ProgressDialog.BUTTON_NEGATIVE, context.getText(R.string.button_abort), new DialogInterface.OnClickListener() {
 			/**
@@ -66,8 +77,22 @@ public class TaskDialog extends ProgressDialog {
 			 */
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				cloud.abortAuthorization();
-				cloud.abortOperation();
+				Thread thread = new Thread() {
+					/**
+					 * {@inheritDoc}
+					 */
+					@Override
+					public void run() {
+						cloud.abortAuthorization();
+						cloud.abortOperation();
+					}
+				};
+				thread.start();
+				try {
+					thread.join();
+				} catch (InterruptedException e) {
+					Log.e(MainActivity.MULTICLOUD_NAME, e.getMessage());
+				}
 				cancel();
 			}
 		});

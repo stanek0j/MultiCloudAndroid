@@ -37,15 +37,39 @@
         
     </LinearLayout>
 
+    <View
+    	android:layout_width="fill_parent"
+    	android:layout_height="1dip"
+    	android:background="@android:color/darker_gray"/>
+    
     <TextView
         android:id="@+id/textView_path"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginTop="4dp"
         android:ellipsize="start"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+    
+    <View
+	    android:layout_width="fill_parent"
+    	android:layout_height="1dip"
+    	android:background="@android:color/darker_gray"/>
 
+    <TextView
+        android:id="@+id/textView_emtpy_folder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="4dp"
+        android:text="@string/desc_empty_folder"
+        android:textStyle="bold" />
+    
     <ListView
         android:id="@+id/listView_files"
         android:layout_width="match_parent"

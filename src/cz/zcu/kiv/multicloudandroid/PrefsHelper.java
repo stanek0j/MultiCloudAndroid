@@ -1,6 +1,7 @@
 package cz.zcu.kiv.multicloudandroid;
 
 import android.content.Context;
+import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
 /**
@@ -27,6 +28,8 @@ public class PrefsHelper {
 	/** Key for getting synchronization folder. */
 	public static final String PREFS_SYNCH_FOLDER = "prefs_synch_folder";
 	public static final String PREFS_SYNCH_SELECT = "prefs_synch_select";
+	/** Key for getting last local folder listed. */
+	public static final String PREFS_LAST_FOLDER = "prefs_last_folder";
 
 	/** Context. */
 	private final Context context;
@@ -37,6 +40,14 @@ public class PrefsHelper {
 	 */
 	public PrefsHelper(Context context) {
 		this.context = context;
+	}
+
+	/**
+	 * Returns the last used folder.
+	 * @return Last used folder.
+	 */
+	public String getLastFolder() {
+		return PreferenceManager.getDefaultSharedPreferences(context).getString(PREFS_LAST_FOLDER, MainActivity.ROOT_FOLDER);
 	}
 
 	/**
@@ -85,6 +96,16 @@ public class PrefsHelper {
 	 */
 	public boolean isShowShared() {
 		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREFS_SHOW_SHARED, false);
+	}
+
+	/**
+	 * Sets the last used folder.
+	 * @param folder Last used folder.
+	 */
+	public void setLastFolder(String folder) {
+		Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		editor.putString(PREFS_LAST_FOLDER, folder);
+		editor.apply();
 	}
 
 }

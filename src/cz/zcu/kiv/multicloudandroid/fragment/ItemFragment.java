@@ -162,6 +162,9 @@ public class ItemFragment extends ListFragment {
 		if (item.getFileType() == FileType.FOLDER) {
 			action = ItemAction.LIST;
 			handler.onItemSelected(position, action);
+		} else {
+			action = ItemAction.DOWNLOAD;
+			handler.onItemSelected(position, action);
 		}
 		getListView().setItemChecked(position, true);
 	}
