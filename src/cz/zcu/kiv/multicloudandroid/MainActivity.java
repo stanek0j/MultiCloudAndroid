@@ -10,6 +10,7 @@ import java.util.List;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -29,7 +30,9 @@ import cz.zcu.kiv.multicloud.json.AccountSettings;
 import cz.zcu.kiv.multicloud.json.FileInfo;
 import cz.zcu.kiv.multicloud.utils.FileAccountManager;
 import cz.zcu.kiv.multicloud.utils.FileCloudManager;
+import cz.zcu.kiv.multicloud.utils.FileCredentialStore;
 import cz.zcu.kiv.multicloud.utils.SecureFileCredentialStore;
+import cz.zcu.kiv.multicloud.utils.Utils;
 import cz.zcu.kiv.multicloudandroid.display.Account;
 import cz.zcu.kiv.multicloudandroid.display.AccountAction;
 import cz.zcu.kiv.multicloudandroid.display.AccountAdapter;
@@ -38,6 +41,7 @@ import cz.zcu.kiv.multicloudandroid.display.DialogCreator;
 import cz.zcu.kiv.multicloudandroid.display.ItemAction;
 import cz.zcu.kiv.multicloudandroid.display.ItemAdapter;
 import cz.zcu.kiv.multicloudandroid.display.ItemSelectedHandler;
+import cz.zcu.kiv.multicloudandroid.display.SyncData;
 import cz.zcu.kiv.multicloudandroid.fragment.AccountFragment;
 import cz.zcu.kiv.multicloudandroid.fragment.ItemFragment;
 import cz.zcu.kiv.multicloudandroid.tasks.AuthorizeTask;
@@ -45,6 +49,7 @@ import cz.zcu.kiv.multicloudandroid.tasks.ChecksumTask;
 import cz.zcu.kiv.multicloudandroid.tasks.InformationTask;
 import cz.zcu.kiv.multicloudandroid.tasks.ListTask;
 import cz.zcu.kiv.multicloudandroid.tasks.LoadTask;
+import cz.zcu.kiv.multicloudandroid.tasks.SynchronizeTask;
 
 /**
  * cz.zcu.kiv.multicloudandroid/MainActivity.java			<br /><br />
@@ -69,6 +74,8 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	/** Root folder path. */
 	public static final String ROOT_FOLDER = "/";
+	/** Remote synchronization folder. */
+	public static final String SYNC_FOLDER = "multicloud";
 
 	/** Preferences helper. */
 	private PrefsHelper prefs;
@@ -147,6 +154,9 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	 */
 	public void actionRemoveAccount(Account account) {
 		cache.removeAccount(account.getName());
+		SyncData data = prefs.getSyncData();
+		removeAccount(data, account.getName());
+		prefs.setSyncData(data);
 		AccountFragment fragment = (AccountFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
 		if (fragment != null) {
 			fragment.accountRemove(account);
@@ -160,9 +170,44 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 	 */
 	public void actionRenameAccount(Account account, String name) {
 		cache.renameAccount(account.getName(), name);
+		SyncData data = prefs.getSyncData();
+		renameAccount(data, account.getName(), name);
+		prefs.setSyncData(data);
 		AccountFragment fragment = (AccountFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
 		if (fragment != null) {
 			fragment.accountRename(account, name);
+		}
+	}
+
+	/**
+	 * Callback for displaying synchronization problems.
+	 * @param report Synchronization report.
+	 */
+	public void actionSynchronize(List<String> report) {
+		if (!report.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(getText(R.string.desc_synch_failed).toString());
+			sb.append("\n");
+			for (String s: report) {
+				sb.append("\n");
+				sb.append(s);
+			}
+			AlertDialog dialog = new AlertDialog.Builder(this)
+			.setTitle(R.string.action_synchronize)
+			.setMessage(sb.toString())
+			.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+				/**
+				 * {@inheritDoc}
+				 */
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			})
+			.create();
+			dialog.show();
+		} else {
+			showToast(R.string.desc_synch_done);
 		}
 	}
 
@@ -240,10 +285,11 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				a.setCloud(null);
 				a.setName(getString(R.string.action_add_account));
 				accounts.add(a);
+			} else {
+				LoadTask load = new LoadTask(this, accountList);
+				load.execute();
 			}
 			accounts.notifyDataSetChanged();
-			LoadTask load = new LoadTask(this, accountList);
-			load.execute();
 		}
 	}
 
@@ -323,6 +369,9 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
@@ -340,11 +389,6 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 		prefs = new PrefsHelper(this);
 		dialogs = new DialogCreator(this);
 		cache = new ChecksumProvider(new File(getFilesDir(), ChecksumProvider.CHECKSUM_FILE));
-
-		File dir = getFilesDir();
-		for (File f: dir.listFiles()) {
-			Log.wtf("file", f.getName() + " :: " + f.length());
-		}
 
 		if (cloud == null) {
 			MultiCloudSettings settings = new MultiCloudSettings();
@@ -376,7 +420,7 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 				Log.e(MULTICLOUD_NAME, e.getMessage());
 			}
 			settings.setCloudManager(cloudManager);
-			settings.setCredentialStore(new SecureFileCredentialStore(new File(getFilesDir(), SecureFileCredentialStore.DEFAULT_STORE_FILE)));
+			settings.setCredentialStore(new SecureFileCredentialStore(new File(getFilesDir(), FileCredentialStore.DEFAULT_STORE_FILE)));
 			cloud = new MultiCloud(settings);
 			cloud.validateAccounts();
 		}
@@ -484,7 +528,20 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 			}
 			break;
 		case R.id.item_synchronize:
-			Toast.makeText(this, "synchronize", Toast.LENGTH_SHORT).show();
+			if (prefs.getSynchronizationFolder() == null) {
+				showToast(R.string.desc_synch_select_folder);
+				break;
+			}
+			List<Account> accountList = new ArrayList<>();
+			ListFragment fragment = (ListFragment) getSupportFragmentManager().findFragmentByTag(ACCOUNT_FRAGMENT_TAG);
+			if (fragment != null) {
+				AccountAdapter accounts = (AccountAdapter) fragment.getListAdapter();
+				for (int i = 0; i < accounts.getCount(); i++) {
+					accountList.add(accounts.getItem(i));
+				}
+			}
+			SynchronizeTask synchronize = new SynchronizeTask(this, accountList);
+			synchronize.execute();
 			break;
 		case R.id.item_preferences:
 			Intent intent = new Intent(this, PrefsActivity.class);
@@ -530,6 +587,43 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 			loadAccounts();
 		}
 		load = true;
+	}
+
+	/**
+	 * Removes account from synchronization data.
+	 * @param node Root of the tree structure.
+	 * @param oldName Account to be removed.
+	 */
+	private void removeAccount(SyncData node, String oldName) {
+		if (node == null || Utils.isNullOrEmpty(oldName)) {
+			return;
+		}
+		if (node.getAccounts().containsKey(oldName)) {
+			node.getAccounts().remove(oldName);
+		}
+		for (SyncData inner: node.getNodes()) {
+			removeAccount(inner, oldName);
+		}
+	}
+
+	/**
+	 * Renames account in synchronization data.
+	 * @param node Root of the tree structure.
+	 * @param oldName Old name to rename from.
+	 * @param newName New name to rename to.
+	 */
+	private void renameAccount(SyncData node, String oldName, String newName) {
+		if (node == null || Utils.isNullOrEmpty(oldName) || Utils.isNullOrEmpty(newName)) {
+			return;
+		}
+		if (node.getAccounts().containsKey(oldName)) {
+			FileInfo value = node.getAccounts().get(oldName);
+			node.getAccounts().remove(oldName);
+			node.getAccounts().put(newName, value);
+		}
+		for (SyncData inner: node.getNodes()) {
+			renameAccount(inner, oldName, newName);
+		}
 	}
 
 	/**

@@ -25,6 +25,7 @@
     <string name="button_parent">Parent</string>
     <string name="button_clear">Clear</string>
     <string name="button_folder">New folder</string>
+    <string name="button_save">Save</string>
     <string name="desc_account">Account name</string>
     <string name="desc_add_account">Click to add account.</string>
     <string name="desc_checksum">Checksum:</string>
@@ -49,6 +50,11 @@
     <string name="desc_quota_total">Total space:</string>
     <string name="desc_quota_used">Used space:</string>
     <string name="desc_separator">separator</string>
+    <string name="desc_synch_done">Synchronization finished.</string>
+    <string name="desc_synch_failed">Failed to synchronize files:</string>
+    <string name="desc_synch_root">[Synch root]</string>
+    <string name="desc_synch_select">Select accounts to synchronize files to.</string>
+    <string name="desc_synch_select_folder">Select synchronization folder first.</string>
     <string name="desc_target_name">Target name</string>
     <string name="desc_total_size">Total size:</string>
     <string name="desc_total_space">Total space:</string>
@@ -64,6 +70,7 @@
     <string name="err_no_local_name">No target file name entered.</string>
     <string name="err_no_name">No name entered.</string>
     <string name="err_no_overwrite">Overwriting not allowed.</string>
+    <string name="err_synchronize">Conflicted files not synchronized.</string>
     <string name="prefs_display">Display options</string>
     <string name="prefs_show_deleted">Show deleted files</string>
     <string name="prefs_show_shared">Show shared files</string>
@@ -73,6 +80,7 @@
     <string name="prefs_synch_folder">Synchronization folder</string>
     <string name="prefs_synch_folder_desc">No folder selected.</string>
     <string name="prefs_synch_select">Selective synchronization</string>
+    <string name="prefs_synch_select_none">None</string>
     <string name="prefs_download">Download options</string>
     <string name="prefs_threads">Threads</string>
     <string name="prefs_threads_desc">Number of download threads:</string>
@@ -84,6 +92,9 @@
     <string name="wait_list">Loading folder content&#8230;</string>
     <string name="wait_load">Loading&#8230;</string>
     <string name="wait_new_folder">Creating new folder&#8230;</string>
+    <string name="wait_synchronize">Synchronizing&#8230;</string>
+    <string name="wait_synch_local">Analyzing local structure&#8230;</string>
+    <string name="wait_synch_remote">Analyzing remote structure&#8230;</string>
     <string name="wait_rename">Renaming&#8230;</string>
     <string name="wait_upload">Uploading&#8230;</string>
     

@@ -338,7 +338,7 @@ public class DialogCreator {
 		}
 		Button btnClear = (Button) view.findViewById(R.id.button_clear);
 		btnClear.setVisibility(View.GONE);
-		Button btnNewFolder = (Button) view.findViewById(R.id.button_folder);
+		Button btnNewFolder = (Button) view.findViewById(R.id.button_save);
 		btnNewFolder.setOnClickListener(new View.OnClickListener() {
 			/**
 			 * {@inheritDoc}
@@ -656,7 +656,7 @@ public class DialogCreator {
 		}
 		Button btnClear = (Button) view.findViewById(R.id.button_clear);
 		btnClear.setVisibility(View.GONE);
-		Button btnNewFolder = (Button) view.findViewById(R.id.button_folder);
+		Button btnNewFolder = (Button) view.findViewById(R.id.button_save);
 		btnNewFolder.setOnClickListener(new View.OnClickListener() {
 			/**
 			 * {@inheritDoc}

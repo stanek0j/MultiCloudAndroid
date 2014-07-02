@@ -7,12 +7,12 @@
         <CheckBoxPreference android:defaultValue="true" android:title="@string/prefs_show_err" android:key="prefs_show_err"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/prefs_download" android:key="prefs_download">
-        <cz.zcu.kiv.multicloudandroid.display.NumberPreference android:key="prefs_threads" android:title="@string/prefs_threads" multicloud:min="1" multicloud:max="10"/>
-    </PreferenceCategory><PreferenceCategory android:title="@string/prefs_synchronize" android:key="prefs_synchronize">
-        <cz.zcu.kiv.multicloudandroid.display.FilePreference android:title="@string/prefs_synch_folder" android:key="prefs_synch_folder" multicloud:folders_only="true"/>
-        <Preference android:title="@string/prefs_synch_select" android:key="prefs_synch_select"/>
+        <cz.zcu.kiv.multicloudandroid.display.NumberPreference android:key="prefs_threads" android:title="@string/prefs_threads" multicloud:min="1" multicloud:max="5"/>
     </PreferenceCategory>
-    
+    <PreferenceCategory android:title="@string/prefs_synchronize" android:key="prefs_synchronize">
+        <cz.zcu.kiv.multicloudandroid.display.FilePreference android:title="@string/prefs_synch_folder" android:key="prefs_synch_folder" multicloud:folders_only="true"/>
+        <cz.zcu.kiv.multicloudandroid.display.SynchronizePreference android:title="@string/prefs_synch_select" android:key="prefs_synch_select"/>
+    </PreferenceCategory>
     
 
 </PreferenceScreen>

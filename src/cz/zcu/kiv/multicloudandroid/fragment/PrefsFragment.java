@@ -11,6 +11,7 @@ import cz.zcu.kiv.multicloudandroid.PrefsHelper;
 import cz.zcu.kiv.multicloudandroid.R;
 import cz.zcu.kiv.multicloudandroid.display.FilePreference;
 import cz.zcu.kiv.multicloudandroid.display.NumberPreference;
+import cz.zcu.kiv.multicloudandroid.display.SynchronizePreference;
 
 /**
  * cz.zcu.kiv.multicloudandroid.fragment/PrefsFragment.java			<br /><br />
@@ -27,6 +28,8 @@ public class PrefsFragment extends PreferenceFragment implements OnSharedPrefere
 	private NumberPreference threads;
 	/** Preference settings for synchronization folder. */
 	private FilePreference synchFolder;
+	/** Preference settings for selective synchronization. */
+	private SynchronizePreference synchSelect;
 
 	/**
 	 * {@inheritDoc}
@@ -37,6 +40,7 @@ public class PrefsFragment extends PreferenceFragment implements OnSharedPrefere
 		addPreferencesFromResource(R.xml.preferences);
 		threads = (NumberPreference) getPreferenceManager().findPreference(PrefsHelper.PREFS_THREADS);
 		synchFolder = (FilePreference) getPreferenceManager().findPreference(PrefsHelper.PREFS_SYNCH_FOLDER);
+		synchSelect = (SynchronizePreference) getPreferenceManager().findPreference(PrefsHelper.PREFS_SYNCH_SELECT);
 	}
 
 	/**
@@ -66,8 +70,12 @@ public class PrefsFragment extends PreferenceFragment implements OnSharedPrefere
 		String folder = synchFolder.getSharedPreferences().getString(PrefsHelper.PREFS_SYNCH_FOLDER, null);
 		if (folder == null) {
 			synchFolder.setSummary(R.string.prefs_synch_folder_desc);
+			synchSelect.setSummary(R.string.desc_synch_select_folder);
+			synchSelect.setEnabled(false);
 		} else {
 			synchFolder.setSummary(folder);
+			synchSelect.setSummary(R.string.desc_synch_select);
+			synchSelect.setEnabled(true);
 		}
 		getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 	}
@@ -84,8 +92,12 @@ public class PrefsFragment extends PreferenceFragment implements OnSharedPrefere
 			String folder = sharedPreferences.getString(PrefsHelper.PREFS_SYNCH_FOLDER, null);
 			if (folder == null) {
 				synchFolder.setSummary(R.string.prefs_synch_folder_desc);
+				synchSelect.setSummary(R.string.desc_synch_select_folder);
+				synchSelect.setEnabled(false);
 			} else {
 				synchFolder.setSummary(folder);
+				synchSelect.setSummary(R.string.desc_synch_select);
+				synchSelect.setEnabled(true);
 			}
 		}
 	}

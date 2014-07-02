@@ -83,7 +83,7 @@ public class TaskDialog extends ProgressDialog {
 			setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		}
 		setMessage(context.getText(message));
-		setButton(ProgressDialog.BUTTON_NEGATIVE, context.getText(R.string.button_abort), new DialogInterface.OnClickListener() {
+		setButton(DialogInterface.BUTTON_NEGATIVE, context.getText(R.string.button_abort), new DialogInterface.OnClickListener() {
 			/**
 			 * {@inheritDoc}
 			 */

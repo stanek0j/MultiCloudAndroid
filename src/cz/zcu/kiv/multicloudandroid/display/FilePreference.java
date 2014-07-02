@@ -135,7 +135,7 @@ public class FilePreference extends DialogPreference {
 				getDialog().dismiss();
 			}
 		});
-		Button btnNewFolder = (Button) view.findViewById(R.id.button_folder);
+		Button btnNewFolder = (Button) view.findViewById(R.id.button_save);
 		btnNewFolder.setOnClickListener(new View.OnClickListener() {
 			/**
 			 * {@inheritDoc}

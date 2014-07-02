@@ -5,30 +5,22 @@
     android:orientation="vertical" >
 
     <LinearLayout
-        android:id="@+id/button_bar"
+        android:id="@+id/button_synch_bar"
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
         <Button
-            android:id="@+id/button_clear"
+            android:id="@+id/button_synch_save"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/button_clear"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:text="@string/button_save" />
 
         <Button
-            android:id="@+id/button_save"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/button_folder"
-            style="?android:attr/buttonBarButtonStyle" />
-
-        <Button
-            android:id="@+id/button_parent"
+            android:id="@+id/button_synch_parent"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -42,8 +34,21 @@
     	android:layout_height="1dip"
     	android:background="@android:color/darker_gray"/>
     
+    <LinearLayout
+        android:id="@+id/list_clouds"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+    </LinearLayout>
+    
+    <View
+    	android:layout_width="fill_parent"
+    	android:layout_height="1dip"
+    	android:background="@android:color/darker_gray"/>
+    
     <TextView
-        android:id="@+id/textView_path"
+        android:id="@+id/textView_synch_path"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
@@ -60,7 +65,7 @@
     	android:background="@android:color/darker_gray"/>
 
     <TextView
-        android:id="@+id/textView_emtpy_folder"
+        android:id="@+id/textView_synch_emtpy_folder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
@@ -71,7 +76,7 @@
         android:textStyle="bold" />
     
     <ListView
-        android:id="@+id/listView_files"
+        android:id="@+id/listView_synch_files"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp" >

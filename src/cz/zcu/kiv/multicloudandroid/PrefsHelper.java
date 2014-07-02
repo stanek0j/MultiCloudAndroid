@@ -1,8 +1,24 @@
 package cz.zcu.kiv.multicloudandroid;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
+import android.util.Log;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import cz.zcu.kiv.multicloud.json.AccountSettings;
+import cz.zcu.kiv.multicloud.json.Json;
+import cz.zcu.kiv.multicloud.utils.FileAccountManager;
+import cz.zcu.kiv.multicloudandroid.display.SyncData;
 
 /**
  * cz.zcu.kiv.multicloudandroid/PrefsHelper.java			<br /><br />
@@ -27,9 +43,12 @@ public class PrefsHelper {
 	public static final String PREFS_THREADS = "prefs_threads";
 	/** Key for getting synchronization folder. */
 	public static final String PREFS_SYNCH_FOLDER = "prefs_synch_folder";
+	/** Key for getting selective synchronization preferences. */
 	public static final String PREFS_SYNCH_SELECT = "prefs_synch_select";
 	/** Key for getting last local folder listed. */
 	public static final String PREFS_LAST_FOLDER = "prefs_last_folder";
+	/** Selective synchronization data file. */
+	public static final String PREFS_SYNCH_FILE = "synchronize.json";
 
 	/** Context. */
 	private final Context context;
@@ -43,11 +62,47 @@ public class PrefsHelper {
 	}
 
 	/**
+	 * Returns list of accounts.
+	 * @return List of accounts.
+	 */
+	public List<String> getAccounts() {
+		List<String> accounts = new ArrayList<>();
+		ObjectMapper mapper = Json.getInstance().getMapper();
+		try {
+			Map<String, AccountSettings> data = mapper.readValue(new File(context.getFilesDir(), FileAccountManager.DEFAULT_FILE), new TypeReference<HashMap<String, AccountSettings>>() {});
+			if (data != null) {
+				accounts.addAll(data.keySet());
+			}
+		} catch (IOException e) {
+			Log.e(MainActivity.MULTICLOUD_NAME, e.getMessage());
+		}
+		return accounts;
+	}
+
+	/**
 	 * Returns the last used folder.
 	 * @return Last used folder.
 	 */
 	public String getLastFolder() {
 		return PreferenceManager.getDefaultSharedPreferences(context).getString(PREFS_LAST_FOLDER, MainActivity.ROOT_FOLDER);
+	}
+
+	/**
+	 * Returns the synchronization data.
+	 * @return Synchronization data.
+	 */
+	public SyncData getSyncData() {
+		SyncData data = new SyncData();
+		ObjectMapper mapper = Json.getInstance().getMapper();
+		try {
+			data = mapper.readValue(new File(context.getFilesDir(), PREFS_SYNCH_FILE), SyncData.class);
+			if (data != null) {
+				data.setRoot(true);
+			}
+		} catch (IOException e) {
+			Log.e(MainActivity.MULTICLOUD_NAME, e.getMessage());
+		}
+		return data;
 	}
 
 	/**
@@ -106,6 +161,19 @@ public class PrefsHelper {
 		Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		editor.putString(PREFS_LAST_FOLDER, folder);
 		editor.apply();
+	}
+
+	/**
+	 * Sets the synchronization data to file.
+	 * @param data Synchronization data.
+	 */
+	public void setSyncData(SyncData data) {
+		ObjectMapper mapper = Json.getInstance().getMapper();
+		try {
+			mapper.writerWithDefaultPrettyPrinter().writeValue(new File(context.getFilesDir(), PREFS_SYNCH_FILE), data);
+		} catch (IOException e) {
+			Log.e(MainActivity.MULTICLOUD_NAME, e.getMessage());
+		}
 	}
 
 }
