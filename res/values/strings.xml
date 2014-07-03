@@ -52,7 +52,7 @@
     <string name="desc_separator">separator</string>
     <string name="desc_synch_done">Synchronization finished.</string>
     <string name="desc_synch_failed">Failed to synchronize files:</string>
-    <string name="desc_synch_root">[Synch root]</string>
+    <string name="desc_synch_root">[Sync root]</string>
     <string name="desc_synch_select">Select accounts to synchronize files to.</string>
     <string name="desc_synch_select_folder">Select synchronization folder first.</string>
     <string name="desc_target_name">Target name</string>
