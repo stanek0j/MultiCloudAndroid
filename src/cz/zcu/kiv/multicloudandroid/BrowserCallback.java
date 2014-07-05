@@ -1,7 +1,5 @@
 package cz.zcu.kiv.multicloudandroid;
 
-import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import cz.zcu.kiv.multicloud.oauth2.AuthorizationCallback;
 import cz.zcu.kiv.multicloud.oauth2.AuthorizationRequest;
@@ -18,13 +16,13 @@ import cz.zcu.kiv.multicloud.oauth2.AuthorizationRequest;
 public class BrowserCallback implements AuthorizationCallback {
 
 	/** Context. */
-	private final Context context;
+	private final MainActivity context;
 
 	/**
 	 * Ctor with context as parameter.
 	 * @param context Context.
 	 */
-	public BrowserCallback(Context context) {
+	public BrowserCallback(MainActivity context) {
 		this.context = context;
 	}
 
@@ -33,8 +31,7 @@ public class BrowserCallback implements AuthorizationCallback {
 	 */
 	@Override
 	public void onAuthorizationRequest(AuthorizationRequest request) {
-		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(request.getRequestUri()));
-		context.startActivity(browserIntent);
+		context.actionAuthorize(Uri.parse(request.getRequestUri()));
 	}
 
 }

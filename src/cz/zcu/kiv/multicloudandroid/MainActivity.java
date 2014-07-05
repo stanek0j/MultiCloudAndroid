@@ -12,6 +12,7 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -113,6 +114,15 @@ public class MainActivity extends FragmentActivity implements AccountSelectedHan
 		if (fragment != null) {
 			fragment.accountAdd(account);
 		}
+	}
+
+	/**
+	 * Callback for starting web browser.
+	 * @param requestUri Uri to be loaded.
+	 */
+	public void actionAuthorize(Uri requestUri) {
+		Intent browserIntent = new Intent(Intent.ACTION_VIEW, requestUri);
+		startActivity(browserIntent);
 	}
 
 	/**
