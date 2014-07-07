@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project name="MultiCloudAndroid" default="javadoc">
+	<description>
+		Build file for MultiCloudAndroid application.
+	</description>
+
+	<!-- =========================================================================
+		properties
+		sets up compilation parameters and source and destination folders
+	========================================================================== -->
+
+	<property name="src.dir" value="./src" />
+	<property name="doc.dir" value="./doc" />	
+
+	<!-- =========================================================================
+		target: clean
+		deletes all created files and documentation
+		keeps the JAR file
+	========================================================================== -->
+	<target name="clean">
+		<delete dir="${doc.dir}" />		
+	</target>
+
+	<!-- =========================================================================
+		target: javadoc
+		compiles the JavaDoc documentation for the library
+	========================================================================== -->
+	<target name="javadoc">
+		<mkdir dir="${doc.dir}" />				
+			<javadoc destdir="${doc.dir}" docencoding="utf-8" encoding="utf-8" charset="utf-8" access="private" packagenames="cz.zcu.kiv.*">
+				<fileset dir="${src.dir}/cz" includes="**/*.java" />
+			</javadoc>		
+	</target>
+
+</project>
